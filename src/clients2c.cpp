@@ -51,7 +51,7 @@ void updatepos(dynent *d)
 
 void localservertoclient(uchar *buf, int len)   // processes any updates from the server
 {
-    if(ENET_NET_TO_HOST_16(*(ushort *)buf)!=len) neterr("packet length");
+    if(ENET_NET_TO_HOST_16(*(ushort *)buf)!=len) neterr(charp"packet length");
     incomingdemodata(buf, len);
     
     uchar *end = buf+len;
@@ -349,7 +349,7 @@ void localservertoclient(uchar *buf, int len)   // processes any updates from th
         };
 
         default:
-            neterr("type");
+            neterr(charp"type");
             return;
     };
 };

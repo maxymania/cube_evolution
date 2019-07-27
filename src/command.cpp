@@ -22,18 +22,18 @@ char *exchangestr(char *o, char *n) { gp()->deallocstr(o); return newstring(n); 
 
 hashtable<ident> *idents = NULL;        // contains ALL vars/commands/aliases
 
-void alias(char *name, char *action)
+void alias(const char *name,const char *action)
 {
-    ident *b = idents->access(name);
+    ident *b = idents->access((char*)name);
     if(!b)
     {
-        name = newstring(name);
-        ident b = { ID_ALIAS, name, 0, 0, 0, 0, 0, newstring(action), true };
-        idents->access(name, &b);
+        name = newstring((char*)name);
+        ident b = { ID_ALIAS, (char*)name, 0, 0, 0, 0, 0, newstring((char*)action), true };
+        idents->access((char*)name, &b);
     }
     else
     {
-        if(b->type==ID_ALIAS) b->action = exchangestr(b->action, action);
+        if(b->type==ID_ALIAS) b->action = exchangestr(b->action, (char*)action);
         else conoutf("cannot redefine builtin %s with an alias", name);
     };
 };
@@ -42,29 +42,29 @@ COMMAND(alias, ARG_2STR);
 
 // variable's and commands are registered through globals, see cube.h
 
-int variable(char *name, int min, int cur, int max, int *storage, void (*fun)(), bool persist)
+int variable( char *name, int min, int cur, int max, int *storage, void (*fun)(), bool persist)
 {
     if(!idents) idents = new hashtable<ident>;
-    ident v = { ID_VAR, name, min, max, storage, fun, 0, 0, persist };
-    idents->access(name, &v);
+    ident v = { ID_VAR, (char*)name, min, max, storage, fun, 0, 0, persist };
+    idents->access((char*)name, &v);
     return cur;
 };
 
-void setvar(char *name, int i) { *idents->access(name)->storage = i; };
-int getvar(char *name) { return *idents->access(name)->storage; };
-bool identexists(char *name) { return idents->access(name)!=NULL; };
+void setvar(const char *name, int i) { *idents->access((char*)name)->storage = i; };
+int getvar(const char *name) { return *idents->access((char*)name)->storage; };
+bool identexists(char *name) { return idents->access((char*)name)!=NULL; };
 
-char *getalias(char *name)
+char *getalias( char *name)
 {
-    ident *i = idents->access(name);
+    ident *i = idents->access((char*)name);
     return i && i->type==ID_ALIAS ? i->action : NULL;
 };
 
-bool addcommand(char *name, void (*fun)(), int narg)
+bool addcommand( char *name, void (*fun)(), int narg)
 {
     if(!idents) idents = new hashtable<ident>;
-    ident c = { ID_COMMAND, name, 0, 0, 0, fun, narg, 0, false };
-    idents->access(name, &c);
+    ident c = { ID_COMMAND, (char*)name, 0, 0, 0, fun, narg, 0, false };
+    idents->access((char*)name, &c);
     return false;
 };
 
@@ -113,7 +113,7 @@ char *parseword(char *&p)                       // parse single argument, includ
 
 char *lookup(char *n)                           // find value of ident referenced with $ in exp
 {
-    ident *id = idents->access(n+1);
+    ident *id = idents->access((char*)(n+1));
     if(id) switch(id->type)
     {
         case ID_VAR: string t; itoa(t, *(id->storage)); return exchangestr(n, t);
@@ -123,20 +123,21 @@ char *lookup(char *n)                           // find value of ident reference
     return n;
 };
 
-int execute(char *p, bool isdown)               // all evaluation happens here, recursively
+int execute(const char *p_, bool isdown)               // all evaluation happens here, recursively
 {
     const int MAXWORDS = 25;                    // limit, remove
     char *w[MAXWORDS];
     int val = 0;
+    char *p = (char*)p_;
     for(bool cont = true; cont;)                // for each ; seperated statement
     {
         int numargs = MAXWORDS;
         loopi(MAXWORDS)                         // collect all argument values
         {
-            w[i] = "";
+            w[i] = charp"";
             if(i>numargs) continue;
             char *s = parseword(p);             // parse and evaluate exps
-            if(!s) { numargs = i; s = ""; };
+            if(!s) { numargs = i; s = charp""; };
             if(*s=='$') s = lookup(s);          // substitute variables
             w[i] = s;
         };
@@ -147,7 +148,7 @@ int execute(char *p, bool isdown)               // all evaluation happens here, 
         if(*c=='/') c++;                        // strip irc-style command prefix
         if(!*c) continue;                       // empty statement
         
-        ident *id = idents->access(c);
+        ident *id = idents->access((char*)c);
         if(!id)
         {
             val = ATOI(c);
@@ -236,7 +237,7 @@ int completesize = 0, completeidx = 0;
 
 void resetcomplete() { completesize = 0; };
 
-void complete(char *s)
+void complete( char *s)
 {
     if(*s!='/')
     {
@@ -259,7 +260,7 @@ void complete(char *s)
     if(completeidx>=idx) completeidx = 0;
 };
 
-bool execfile(char *cfgfile)
+bool execfile(const char *cfgfile)
 {
     string s;
     strcpy_s(s, cfgfile);
@@ -270,7 +271,7 @@ bool execfile(char *cfgfile)
     return true;
 };
 
-void exec(char *cfgfile)
+void exec(const char *cfgfile)
 {
     if(!execfile(cfgfile)) conoutf("could not read \"%s\"", cfgfile);
 };
@@ -305,14 +306,14 @@ COMMAND(writecfg, ARG_NONE);
 // below the commands that implement a small imperative language. thanks to the semantics of
 // () and [] expressions, any control construct can be defined trivially.
 
-void intset(char *name, int v) { string b; itoa(b, v); alias(name, b); };
+void intset( char *name, int v) { string b; itoa(b, v); alias(name, b); };
 
-void ifthen(char *cond, char *thenp, char *elsep) { execute(cond[0]!='0' ? thenp : elsep); };
-void loopa(char *times, char *body) { int t = atoi(times); loopi(t) { intset("i", i); execute(body); }; };
-void whilea(char *cond, char *body) { while(execute(cond)) execute(body); };    // can't get any simpler than this :)
-void onrelease(bool on, char *body) { if(!on) execute(body); };
+void ifthen( char *cond,  char *thenp,  char *elsep) { execute(cond[0]!='0' ? thenp : elsep); };
+void loopa( char *times,  char *body) { int t = atoi(times); loopi(t) { intset(charp"i", i); execute(body); }; };
+void whilea( char *cond,  char *body) { while(execute(cond)) execute(body); };    // can't get any simpler than this :)
+void onrelease(bool on,  char *body) { if(!on) execute(body); };
 
-void concat(char *s) { alias("s", s); };
+void concat( char *s) { alias("s", s); };
 
 void concatword(char *s)
 {
@@ -320,7 +321,7 @@ void concatword(char *s)
     concat(s);
 };
 
-int listlen(char *a)
+int listlen( char *a)
 {
     if(!*a) return 0;
     int n = 0;
@@ -355,7 +356,7 @@ int equal(int a, int b) { return (int)(a==b); }; COMMANDN(=, equal, ARG_2EXP);
 int lt(int a, int b)    { return (int)(a<b); };  COMMANDN(<, lt, ARG_2EXP);
 int gt(int a, int b)    { return (int)(a>b); };  COMMANDN(>, gt, ARG_2EXP);
 
-int strcmpa(char *a, char *b) { return strcmp(a,b)==0; };  COMMANDN(strcmp, strcmpa, ARG_2EST);
+int strcmpa( char *a,  char *b) { return strcmp(a,b)==0; };  COMMANDN(strcmp, strcmpa, ARG_2EST);
 
 int rndn(int a)    { return a>0 ? rnd(a) : 0; };  COMMANDN(rnd, rndn, ARG_1EXP);
 

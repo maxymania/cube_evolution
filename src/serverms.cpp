@@ -4,7 +4,7 @@
 
 ENetSocket mssock = ENET_SOCKET_NULL;
 
-void httpgetsend(ENetAddress &ad, char *hostname, char *req, char *ref, char *agent)
+void httpgetsend(ENetAddress &ad, const char *hostname, const char *req, const char *ref, const char *agent)
 {
     if(ad.host==ENET_HOST_ANY)
     {

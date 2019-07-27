@@ -217,7 +217,7 @@ md2 *loadmodel(char *name)
     if(mm) return *mm;
     md2 *m = new md2();
     m->mdlnum = modelnum++;
-    mapmodelinfo mmi = { 2, 2, 0, 0, "" }; 
+    mapmodelinfo mmi = { 2, 2, 0, 0, charp"" }; 
     m->mmi = mmi;
     m->loadname = newstring(name);
     mdllookup->access(m->loadname, &m);

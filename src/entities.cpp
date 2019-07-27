@@ -6,8 +6,8 @@ vector<entity> ents;
 
 char *entmdlnames[] = 
 {
-	"shells", "bullets", "rockets", "rrounds", "health", "boost",
-	"g_armour", "y_armour", "quad",	"teleporter",     
+	charp"shells", charp"bullets", charp"rockets", charp"rrounds", charp"health", charp"boost",
+	charp"g_armour", charp"y_armour", charp"quad", charp"teleporter",     
 };
 
 int triggertime = 0;
@@ -47,11 +47,11 @@ void renderentities()
                 case 2: 
                 case 0:
 					if(!e.spawned) continue;
-					renderent(e, "carrot", (float)(1+sin(lastmillis/100.0+e.x+e.y)/20), lastmillis/(e.attr2 ? 1.0f : 10.0f));
+					renderent(e, charp"carrot", (float)(1+sin(lastmillis/100.0+e.x+e.y)/20), lastmillis/(e.attr2 ? 1.0f : 10.0f));
 					break;
 					
-                case 4: renderent(e, "switch2", 3,      (float)e.attr3*90, (!e.spawned && !triggertime) ? 1  : 0, (e.spawned || !triggertime) ? 1 : 2,  triggertime, 1050.0f);  break;
-                case 5: renderent(e, "switch1", -0.15f, (float)e.attr3*90, (!e.spawned && !triggertime) ? 30 : 0, (e.spawned || !triggertime) ? 1 : 30, triggertime, 35.0f); break;
+                case 4: renderent(e, charp"switch2", 3,      (float)e.attr3*90, (!e.spawned && !triggertime) ? 1  : 0, (e.spawned || !triggertime) ? 1 : 2,  triggertime, 1050.0f);  break;
+                case 5: renderent(e, charp"switch1", -0.15f, (float)e.attr3*90, (!e.spawned && !triggertime) ? 30 : 0, (e.spawned || !triggertime) ? 1 : 30, triggertime, 35.0f); break;
             }; 
         };
     };

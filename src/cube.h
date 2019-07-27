@@ -249,13 +249,16 @@ enum    // function signatures for script functions, see command.cpp
     ARG_VARI
 }; 
 
+// var-char* (opposite of const char*)
+#define charp (char*)
+
 // nasty macros for registering script functions, abuses globals to avoid excessive infrastructure
-#define COMMANDN(name, fun, nargs) static bool __dummy_##fun = addcommand(#name, (void (*)())fun, nargs)
+#define COMMANDN(name, fun, nargs) static bool __dummy_##fun = addcommand((char*)#name, (void (*)())fun, nargs)
 #define COMMAND(name, nargs) COMMANDN(name, name, nargs)
-#define VARP(name, min, cur, max) int name = variable(#name, min, cur, max, &name, NULL, true)
-#define VAR(name, min, cur, max)  int name = variable(#name, min, cur, max, &name, NULL, false)
-#define VARF(name, min, cur, max, body)  void var_##name(); static int name = variable(#name, min, cur, max, &name, var_##name, false); void var_##name() { body; }
-#define VARFP(name, min, cur, max, body) void var_##name(); static int name = variable(#name, min, cur, max, &name, var_##name, true); void var_##name() { body; }
+#define VARP(name, min, cur, max) int name = variable((char*)#name, min, cur, max, &name, NULL, true)
+#define VAR(name, min, cur, max)  int name = variable((char*)#name, min, cur, max, &name, NULL, false)
+#define VARF(name, min, cur, max, body)  void var_##name(); static int name = variable((char*)#name, min, cur, max, &name, var_##name, false); void var_##name() { body; }
+#define VARFP(name, min, cur, max, body) void var_##name(); static int name = variable((char*)#name, min, cur, max, &name, var_##name, true); void var_##name() { body; }
 
 #define ATOI(s) strtol(s, NULL, 0)		// supports hexadecimal numbers
 

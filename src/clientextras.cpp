@@ -45,7 +45,7 @@ extern int democlientnum;
 void renderclients()
 {
     dynent *d;
-    loopv(players) if((d = players[i]) && (!demoplayback || i!=democlientnum)) renderclient(d, isteam(player1->team, d->team), "monster/ogro", false, 1.0f);
+    loopv(players) if((d = players[i]) && (!demoplayback || i!=democlientnum)) renderclient(d, isteam(player1->team, d->team), charp"monster/ogro", false, 1.0f);
 };
 
 // creation of scoreboard pseudo-menu
@@ -102,7 +102,7 @@ void renderscores()
             sprintf_sd(sc)("[ %s: %d ]", teamname[j], teamscore[j]);
             strcat_s(teamscores, sc);
         };
-        menumanual(0, scorelines.length(), "");
+        menumanual(0, scorelines.length(), charp"");
         menumanual(0, scorelines.length()+1, teamscores);
     };
 };

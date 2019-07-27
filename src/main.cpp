@@ -16,7 +16,7 @@ void cleanup(char *msg)         // single program exit point;
         #ifdef WIN32
         MessageBox(NULL, msg, "cube fatal error", MB_OK|MB_SYSTEMMODAL);
         #else
-        printf(msg);
+        printf("%s",msg);
         #endif
     };
     SDL_Quit();
@@ -29,7 +29,7 @@ void quit()                     // normal exit
     cleanup(NULL);
 };
 
-void fatal(char *s, char *o)    // failure exit
+void fatal(const char *s, const char *o)    // failure exit
 {
     sprintf_sd(msg)("%s%s (%s)\n", s, o, SDL_GetError());
     cleanup(msg);
@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 {    
     bool dedicated = false;
     int fs = SDL_FULLSCREEN, par = 0, uprate = 0, maxcl = 4;
-    char *sdesc = "", *ip = "", *master = NULL, *passwd = "";
+    char *sdesc = charp"", *ip = charp"", *master = NULL, *passwd = charp"";
     islittleendian = *((char *)&islittleendian);
 
     #define log(s) conoutf("init: %s", s)
@@ -148,15 +148,15 @@ int main(int argc, char **argv)
 
     log("basetex");
     int xs, ys;
-    if(!installtex(2,  path(newstring("data/newchars.png")), xs, ys) ||
-       !installtex(3,  path(newstring("data/martin/base.png")), xs, ys) ||
-       !installtex(6,  path(newstring("data/martin/ball1.png")), xs, ys) ||
-       !installtex(7,  path(newstring("data/martin/smoke.png")), xs, ys) ||
-       !installtex(8,  path(newstring("data/martin/ball2.png")), xs, ys) ||
-       !installtex(9,  path(newstring("data/martin/ball3.png")), xs, ys) ||
-       !installtex(4,  path(newstring("data/explosion.jpg")), xs, ys) ||
-       !installtex(5,  path(newstring("data/items.png")), xs, ys) ||
-       !installtex(1,  path(newstring("data/crosshair.png")), xs, ys)) fatal("could not find core textures (hint: run cube from the parent of the bin directory)");
+    if(!installtex(2,  path(newstring(charp"data/newchars.png")), xs, ys) ||
+       !installtex(3,  path(newstring(charp"data/martin/base.png")), xs, ys) ||
+       !installtex(6,  path(newstring(charp"data/martin/ball1.png")), xs, ys) ||
+       !installtex(7,  path(newstring(charp"data/martin/smoke.png")), xs, ys) ||
+       !installtex(8,  path(newstring(charp"data/martin/ball2.png")), xs, ys) ||
+       !installtex(9,  path(newstring(charp"data/martin/ball3.png")), xs, ys) ||
+       !installtex(4,  path(newstring(charp"data/explosion.jpg")), xs, ys) ||
+       !installtex(5,  path(newstring(charp"data/items.png")), xs, ys) ||
+       !installtex(1,  path(newstring(charp"data/crosshair.png")), xs, ys)) fatal("could not find core textures (hint: run cube from the parent of the bin directory)");
 
     log("sound");
     initsound();
@@ -174,7 +174,7 @@ int main(int argc, char **argv)
 
     log("localconnect");
     localconnect();
-    changemap("metl3");		// if this map is changed, also change depthcorrect()
+    changemap(charp"metl3");		// if this map is changed, also change depthcorrect()
     
     log("mainloop");
     int ignore = 5;

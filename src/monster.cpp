@@ -22,14 +22,14 @@ struct monstertype      // see docs for how these values modify behaviour
 
 monstertypes[NUMMONSTERTYPES] =
 {
-    { GUN_FIREBALL,  15, 100, 3, 0,   100, 800, 1, 10, 10, S_PAINO, S_DIE1,   "an ogre",     "monster/ogro"    },
-    { GUN_CG,        18,  70, 2, 70,   10, 400, 2,  8,  9, S_PAINR, S_DEATHR, "a rhino",     "monster/rhino"   },
-    { GUN_SG,        14, 120, 1, 100, 300, 400, 4, 14, 14, S_PAINE, S_DEATHE, "ratamahatta", "monster/rat"     },
-    { GUN_RIFLE,     15, 200, 1, 80,  300, 300, 4, 18, 18, S_PAINS, S_DEATHS, "a slith",     "monster/slith"   },
-    { GUN_RL,        13, 500, 1, 0,   100, 200, 6, 24, 24, S_PAINB, S_DEATHB, "bauul",       "monster/bauul"   },
-    { GUN_BITE,      22,  50, 3, 0,   100, 400, 1, 12, 15, S_PAINP, S_PIGGR2, "a hellpig",   "monster/hellpig" },
-    { GUN_ICEBALL,   12, 250, 1, 0,    10, 400, 6, 18, 18, S_PAINH, S_DEATHH, "a knight",    "monster/knight"  },
-    { GUN_SLIMEBALL, 15, 100, 1, 0,   200, 400, 2, 13, 10, S_PAIND, S_DEATHD, "a goblin",    "monster/goblin"  },
+    { GUN_FIREBALL,  15, 100, 3, 0,   100, 800, 1, 10, 10, S_PAINO, S_DIE1,   charp"an ogre",     charp"monster/ogro"    },
+    { GUN_CG,        18,  70, 2, 70,   10, 400, 2,  8,  9, S_PAINR, S_DEATHR, charp"a rhino",     charp"monster/rhino"   },
+    { GUN_SG,        14, 120, 1, 100, 300, 400, 4, 14, 14, S_PAINE, S_DEATHE, charp"ratamahatta", charp"monster/rat"     },
+    { GUN_RIFLE,     15, 200, 1, 80,  300, 300, 4, 18, 18, S_PAINS, S_DEATHS, charp"a slith",     charp"monster/slith"   },
+    { GUN_RL,        13, 500, 1, 0,   100, 200, 6, 24, 24, S_PAINB, S_DEATHB, charp"bauul",       charp"monster/bauul"   },
+    { GUN_BITE,      22,  50, 3, 0,   100, 400, 1, 12, 15, S_PAINP, S_PIGGR2, charp"a hellpig",   charp"monster/hellpig" },
+    { GUN_ICEBALL,   12, 250, 1, 0,    10, 400, 6, 18, 18, S_PAINH, S_DEATHH, charp"a knight",    charp"monster/knight"  },
+    { GUN_SLIMEBALL, 15, 100, 1, 0,   200, 400, 2, 13, 10, S_PAIND, S_DEATHD, charp"a goblin",    charp"monster/goblin"  },
 };
 
 dynent *basicmonster(int type, int yaw, int state, int trigger, int move)

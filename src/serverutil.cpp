@@ -91,7 +91,7 @@ ENetPacket *recvmap(int n)
 #define NC(x) (char*)(x)
 
 void localservertoclient(uchar *buf, int len) {};
-void fatal(char *s, char *o) { cleanupserver(); printf("servererror: %s\n", s); exit(1); };
+void fatal(const char *s, const char *o) { cleanupserver(); printf("servererror: %s\n", s); exit(1); };
 void *alloc(int s) { void *b = calloc(1,s); if(!b) fatal(NC("no memory!")); return b; };
 
 int main(int argc, char* argv[])

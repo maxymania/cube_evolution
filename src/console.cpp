@@ -24,7 +24,7 @@ COMMANDN(conskip, setconskip, ARG_1INT);
 void conline(const char *sf, bool highlight)        // add a line to the console buffer
 {
     cline cl;
-    cl.cref = conlines.length()>100 ? conlines.pop().cref : newstringbuf("");   // constrain the buffer size
+    cl.cref = conlines.length()>100 ? conlines.pop().cref : newstringbuf(charp"");   // constrain the buffer size
     cl.outtime = lastmillis;                        // for how long to keep line on screen
     conlines.insert(0,cl);
     if(highlight)                                   // show line in a different colour, for chat etc.
@@ -104,7 +104,7 @@ void saycommand(char *init)                         // turns input to the comman
 {
     SDL_EnableUNICODE(saycommandon = (init!=NULL));
     if(!editmode) keyrepeat(saycommandon);
-    if(!init) init = "";
+    if(!init) init = charp"";
     strcpy_s(commandbuf, init);
 };
 

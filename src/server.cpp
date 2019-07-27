@@ -44,7 +44,7 @@ void restoreserverstate(vector<entity> &ents)   // hack: called from savegame co
 int interm = 0, minremain = 0, mapend = 0;
 bool mapreload = false;
 
-char *serverpassword = "";
+const char *serverpassword = "";
 
 bool isdedicated;
 ENetHost * serverhost = NULL;
@@ -54,7 +54,7 @@ int bsend = 0, brec = 0, laststatus = 0, lastsec = 0;
 
 void process(ENetPacket *packet, int sender);
 void multicast(ENetPacket *packet, int sender);
-void disconnect_client(int n, char *reason);
+void disconnect_client(int n, const char *reason);
 
 void send(int n, ENetPacket *packet)
 {
@@ -89,20 +89,20 @@ void send2(bool rel, int cn, int a, int b)
     if(packet->referenceCount==0) enet_packet_destroy(packet);
 };
 
-void sendservmsg(char *msg)
+void sendservmsg(const char *msg)
 {
     ENetPacket *packet = enet_packet_create(NULL, _MAXDEFSTR+10, ENET_PACKET_FLAG_RELIABLE);
     uchar *start = packet->data;
     uchar *p = start+2;
     putint(p, SV_SERVMSG);
-    sendstring(msg, p);
+    sendstring((char*)msg, p);
     *(ushort *)start = ENET_HOST_TO_NET_16(p-start);
     enet_packet_resize(packet, p-start);
     multicast(packet, -1);
     if(packet->referenceCount==0) enet_packet_destroy(packet);
 };
 
-void disconnect_client(int n, char *reason)
+void disconnect_client(int n, const char *reason)
 {
     printf("disconnecting client (%s) [%s]\n", clients[n].hostname, reason);
     enet_peer_disconnect(clients[n].peer);
@@ -270,7 +270,7 @@ void send_welcome(int n)
     putint(p, n);
     putint(p, PROTOCOL_VERSION);
     putint(p, smapname[0]);
-    sendstring(serverpassword, p);
+    sendstring((char*)serverpassword, p);
     putint(p, clients.length()>maxclients);
     if(smapname[0])
     {

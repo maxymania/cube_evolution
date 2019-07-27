@@ -179,8 +179,8 @@ void initclientnet()
     ctext[0] = 0;
     toservermap[0] = 0;
     clientpassword[0] = 0;
-    newname("unnamed");
-    newteam("red");
+    newname(charp"unnamed");
+    newteam(charp"red");
 };
 
 void sendpackettoserv(void *packet)

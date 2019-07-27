@@ -84,10 +84,10 @@ bool rendermenu()
     return true;
 };
 
-void newmenu(char *name)
+void newmenu(const char *name)
 {
     gmenu &menu = menus.add();
-    menu.name = newstring(name);
+    menu.name = newstring((char*)name);
     menu.menusel = 0;
 };
 
@@ -96,7 +96,7 @@ void menumanual(int m, int n, char *text)
     if(!n) menus[m].items.setsize(0);
     mitem &mitem = menus[m].items.add();
     mitem.text = text;
-    mitem.action = "";
+    mitem.action = charp"";
 }
 
 void menuitem(char *text, char *action)

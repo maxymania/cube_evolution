@@ -1,17 +1,18 @@
 // protos for ALL external functions in cube... 
 
+#define uconst
 // command
 extern int variable(char *name, int min, int cur, int max, int *storage, void (*fun)(), bool persist);
-extern void setvar(char *name, int i);
-extern int getvar(char *name);
+extern void setvar(const char *name, int i);
+extern int getvar(const char *name);
 extern bool identexists(char *name);
 extern bool addcommand(char *name, void (*fun)(), int narg);
-extern int execute(char *p, bool down = true);
-extern void exec(char *cfgfile);
-extern bool execfile(char *cfgfile);
+extern int execute(const char *p, bool down = true);
+extern void exec(const char *cfgfile);
+extern bool execfile(const char *cfgfile);
 extern void resetcomplete();
 extern void complete(char *s);
-extern void alias(char *name, char *action);
+extern void alias(const char *name, const char *action);
 extern char *getalias(char *name);
 extern void writecfg();
 
@@ -28,7 +29,7 @@ extern void menuset(int menu);
 extern void menumanual(int m, int n, char *text);
 extern void sortmenu(int start, int num);
 extern bool menukey(int code, bool isdown);
-extern void newmenu(char *name);
+extern void newmenu(const char *name);
 
 // serverbrowser
 extern void addserver(char *servername);
@@ -124,7 +125,7 @@ extern void computeraytable(float vx, float vy);
 extern int isoccluded(float vx, float vy, float cx, float cy, float csize);
 
 // main
-extern void fatal(char *s, char *o = (char*)"");
+extern void fatal(const char *s, const char *o = "");
 extern void *alloc(int s);
 extern void keyrepeat(bool on);
 

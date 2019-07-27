@@ -9,10 +9,10 @@ bool editmode = false;
 
 block sel =
 {
-    variable("selx",  0, 0, 4096, &sel.x,  NULL, false),
-    variable("sely",  0, 0, 4096, &sel.y,  NULL, false),
-    variable("selxs", 0, 0, 4096, &sel.xs, NULL, false),
-    variable("selys", 0, 0, 4096, &sel.ys, NULL, false),
+    variable(charp"selx",  0, 0, 4096, &sel.x,  NULL, false),
+    variable(charp"sely",  0, 0, 4096, &sel.y,  NULL, false),
+    variable(charp"selxs", 0, 0, 4096, &sel.xs, NULL, false),
+    variable(charp"selys", 0, 0, 4096, &sel.ys, NULL, false),
 };
 
 int selh = 0;

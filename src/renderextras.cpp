@@ -139,7 +139,7 @@ void renderspheres(int time)
 };
 
 string closeent;
-char *entnames[] =
+const char *entnames[] =
 {
     "none?", "light", "playerstart",
     "shells", "bullets", "rockets", "riflerounds",
@@ -172,7 +172,7 @@ void loadsky(char *basename)
 {
     static string lastsky = "";
     if(strcmp(lastsky, basename)==0) return;
-    char *side[] = { "ft", "bk", "lf", "rt", "dn", "up" };
+    const char *side[] = { "ft", "bk", "lf", "rt", "dn", "up" };
     int texnum = 14;
     loopi(6)
     {
@@ -300,7 +300,7 @@ void gl_drawhud(int w, int h, int curfps, int nquads, int curvert, bool underwat
 
     char *command = getcurcommand();
     char *player = playerincrosshair();
-    if(command) draw_textf("> %s_", 20, 1570, 2, command);
+    if(command) draw_textf(charp"> %s_", 20, 1570, 2, command);
     else if(closeent[0]) draw_text(closeent, 20, 1570, 2);
     else if(player) draw_text(player, 20, 1570, 2);
 
@@ -336,10 +336,10 @@ void gl_drawhud(int w, int h, int curfps, int nquads, int curvert, bool underwat
         glPopMatrix();
         glPushMatrix();
         glOrtho(0, VIRTW*3/2, VIRTH*3/2, 0, -1, 1);
-        draw_textf("fps %d", 3200, 2390, 2, curfps);
-        draw_textf("wqd %d", 3200, 2460, 2, nquads); 
-        draw_textf("wvt %d", 3200, 2530, 2, curvert);
-        draw_textf("evt %d", 3200, 2600, 2, xtraverts);
+        draw_textf(charp"fps %d", 3200, 2390, 2, curfps);
+        draw_textf(charp"wqd %d", 3200, 2460, 2, nquads); 
+        draw_textf(charp"wvt %d", 3200, 2530, 2, curvert);
+        draw_textf(charp"evt %d", 3200, 2600, 2, xtraverts);
     };
     
     glPopMatrix();
@@ -348,9 +348,9 @@ void gl_drawhud(int w, int h, int curfps, int nquads, int curvert, bool underwat
     {
         glPushMatrix();
         glOrtho(0, VIRTW/2, VIRTH/2, 0, -1, 1);
-        draw_textf("%d",  90, 827, 2, player1->health);
-        if(player1->armour) draw_textf("%d", 390, 827, 2, player1->armour);
-        draw_textf("%d", 690, 827, 2, player1->ammo[player1->gunselect]);
+        draw_textf(charp"%d",  90, 827, 2, player1->health);
+        if(player1->armour) draw_textf(charp"%d", 390, 827, 2, player1->armour);
+        draw_textf(charp"%d", 690, 827, 2, player1->ammo[player1->gunselect]);
         glPopMatrix();
         glPushMatrix();
         glOrtho(0, VIRTW, VIRTH, 0, -1, 1);
