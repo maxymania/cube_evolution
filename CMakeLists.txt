@@ -58,9 +58,10 @@ file(GLOB CUBE_SERVER
 
 add_executable(client ${ENET} ${CUBE_CLIENT})
 
-target_link_libraries(client SDL)
-target_link_libraries(client SDL_image)
-target_link_libraries(client SDL_mixer)
+target_link_libraries(client SDL2)
+target_link_libraries(client SDL2_image)
+target_link_libraries(client SDL2_mixer)
+#target_link_libraries(client SDL2_thread)
 target_link_libraries(client GL)
 target_link_libraries(client GLU)
 target_link_libraries(client z)

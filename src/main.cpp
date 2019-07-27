@@ -11,6 +11,7 @@ void cleanup(char *msg)         // single program exit point;
     cleansound();
     cleanupserver();
     SDL_ShowCursor(1);
+    SDL_SetRelativeMouseMode(SDL_FALSE);
     if(msg)
     {
         #ifdef WIN32
@@ -73,9 +74,9 @@ COMMAND(screenshot, ARG_NONE);
 COMMAND(quit, ARG_NONE);
 
 void keyrepeat(bool on)
-{
-    SDL_EnableKeyRepeat(on ? SDL_DEFAULT_REPEAT_DELAY : 0,
-                             SDL_DEFAULT_REPEAT_INTERVAL);
+{// TODO: find a SDL2 variant for this.
+    //SDL_EnableKeyRepeat(on ? SDL_DEFAULT_REPEAT_DELAY : 0,
+    //                         SDL_DEFAULT_REPEAT_INTERVAL);
 };
 
 VARF(gamespeed, 10, 100, 1000, if(multiplayer()) gamespeed = 100);
@@ -83,11 +84,34 @@ VARP(minmillis, 0, 5, 1000);
 
 int islittleendian = 1;
 int framesinmap = 0;
+SDL_Window *sdl_window;
+SDL_GLContext sdl_context;
+
+// Emulate event.key.keysym.unicode
+int sev_unicode(const SDL_Event& event) {
+    switch(event.key.keysym.sym) {
+    case SDLK_SPACE: return ' ';
+    case SDLK_TAB: return '\t';
+    case SDLK_RETURN:
+    case SDLK_RETURN2: return '\n';
+    }
+    char chr = 0;
+    const char* str = SDL_GetKeyName(event.key.keysym.sym);
+    if(str) if(*str && !str[1]) return chr = *str;
+    
+    if(event.key.keysym.mod & (KMOD_LSHIFT|KMOD_RSHIFT)){
+	if(chr>='a'&&chr<='z') chr = (chr - 'a') + 'A';
+    }else{
+	if(chr>='A'&&chr<='Z') chr = (chr - 'A') + 'a';
+    }
+    
+    return 0;
+}
 
 int main(int argc, char **argv)
-{    
+{   
     bool dedicated = false;
-    int fs = SDL_FULLSCREEN, par = 0, uprate = 0, maxcl = 4;
+    int fs = SDL_WINDOW_FULLSCREEN, par = 0, uprate = 0, maxcl = 4;
     char *sdesc = charp"", *ip = charp"", *master = NULL, *passwd = charp"";
     islittleendian = *((char *)&islittleendian);
 
@@ -114,6 +138,7 @@ int main(int argc, char **argv)
         else conoutf("unknown commandline argument");
     };
     
+    //#define _DEBUG
     #ifdef _DEBUG
     par = SDL_INIT_NOPARACHUTE;
     fs = 0;
@@ -134,14 +159,18 @@ int main(int argc, char **argv)
     if(SDL_InitSubSystem(SDL_INIT_VIDEO)<0) fatal("Unable to initialize SDL Video");
 
     log("video: mode");
+    sdl_window = SDL_CreateWindow("cube engine",SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,scr_w,scr_h,SDL_WINDOW_OPENGL|fs);
+    if(sdl_window==NULL) fatal("Unable to create OpenGL screen");
+    
+    sdl_context = SDL_GL_CreateContext(sdl_window);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    if(SDL_SetVideoMode(scr_w, scr_h, 0, SDL_OPENGL|fs)==NULL) fatal("Unable to create OpenGL screen");
 
     log("video: misc");
-    SDL_WM_SetCaption("cube engine", NULL);
-    SDL_WM_GrabInput(SDL_GRAB_ON);
+    //SDL_WM_SetCaption("cube engine", NULL);
+    //SDL_WM_GrabInput(SDL_GRAB_ON);
+    SDL_SetRelativeMouseMode(SDL_TRUE);
     keyrepeat(false);
-    SDL_ShowCursor(0);
+    //SDL_ShowCursor(0);
 
     log("gl");
     gl_init(scr_w, scr_h);
@@ -191,7 +220,7 @@ int main(int argc, char **argv)
         fps = (1000.0f/curtime+fps*50)/51;
         computeraytable(player1->o.x, player1->o.y);
         readdepth(scr_w, scr_h);
-        SDL_GL_SwapBuffers();
+	SDL_GL_SwapWindow(sdl_window);
         extern void updatevol(); updatevol();
         if(framesinmap++<5)	// cheap hack to get rid of initial sparklies, even when triple buffering etc.
         {
@@ -212,7 +241,7 @@ int main(int argc, char **argv)
 
                 case SDL_KEYDOWN: 
                 case SDL_KEYUP: 
-                    keypress(event.key.keysym.sym, event.key.state==SDL_PRESSED, event.key.keysym.unicode);
+                    keypress(event.key.keysym.sym, event.key.state==SDL_PRESSED, sev_unicode(event) );
                     break;
 
                 case SDL_MOUSEMOTION:
@@ -226,6 +255,12 @@ int main(int argc, char **argv)
                     keypress(-event.button.button, event.button.state!=0, 0);
                     lasttype = event.type;
                     lastbut = event.button.button;
+                    break;
+                case SDL_MOUSEWHEEL:
+                    if(event.wheel.y > 0)
+                        keypress(-4, true, 0);
+                    if(event.wheel.y < 0)
+                        keypress(-5, true, 0);
                     break;
             };
         };
