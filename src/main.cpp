@@ -110,6 +110,7 @@ int sev_unicode(const SDL_Event& event) {
 
 int main(int argc, char **argv)
 {   
+    bool desktop = false;
     bool dedicated = false;
     int fs = SDL_WINDOW_FULLSCREEN, par = 0, uprate = 0, maxcl = 4;
     char *sdesc = charp"", *ip = charp"", *master = NULL, *passwd = charp"";
@@ -133,10 +134,13 @@ int main(int argc, char **argv)
             case 'm': master = a; break;
             case 'p': passwd = a; break;
             case 'c': maxcl  = atoi(a); break;
+	    case 'S': desktop = true; break;
             default:  conoutf("unknown commandline option");
         }
         else conoutf("unknown commandline argument");
     };
+    
+    if(desktop) fs = SDL_WINDOW_FULLSCREEN_DESKTOP;
     
     //#define _DEBUG
     #ifdef _DEBUG
@@ -161,6 +165,7 @@ int main(int argc, char **argv)
     log("video: mode");
     sdl_window = SDL_CreateWindow("cube engine",SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,scr_w,scr_h,SDL_WINDOW_OPENGL|fs);
     if(sdl_window==NULL) fatal("Unable to create OpenGL screen");
+    if(desktop) SDL_GetWindowSize(sdl_window,&scr_w,&scr_h);
     
     sdl_context = SDL_GL_CreateContext(sdl_window);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
