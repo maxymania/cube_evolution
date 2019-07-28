@@ -273,9 +273,14 @@ enum    // function signatures for script functions, see command.cpp
 
 #include <time.h>
 
+#if 1
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include <GL/glext.h>
+//#include <GL/glext.h>
+#else
+#include <GLES2/gl2.h>
+#endif
+#include <GUF/guf.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>

@@ -276,10 +276,10 @@ void drawhudgun(float fovy, float aspect, int farplane)
     
     glEnable(GL_CULL_FACE);
     
-    glMatrixMode(GL_PROJECTION);
+    gufMatrixMode(GUF_PROJECTION);
     glLoadIdentity();
-    gluPerspective(fovy, aspect, 0.3f, farplane);
-    glMatrixMode(GL_MODELVIEW);
+    gufPerspective(fovy, aspect, 0.3f, farplane);
+    gufMatrixMode(GUF_MODELVIEW);
     
     //glClear(GL_DEPTH_BUFFER_BIT);
     int rtime = reloadtime(player1->gunselect);
@@ -292,10 +292,10 @@ void drawhudgun(float fovy, float aspect, int farplane)
         drawhudmodel(6, 1, 100, 0);
     };
 
-    glMatrixMode(GL_PROJECTION);
+    gufMatrixMode(GUF_PROJECTION);
     glLoadIdentity();
-    gluPerspective(fovy, aspect, 0.15f, farplane);
-    glMatrixMode(GL_MODELVIEW);
+    gufPerspective(fovy, aspect, 0.15f, farplane);
+    gufMatrixMode(GUF_MODELVIEW);
 
     glDisable(GL_CULL_FACE);
 };
@@ -323,11 +323,11 @@ void gl_drawframe(int w, int h, float curfps)
     
     glClear((player1->outsidemap ? GL_COLOR_BUFFER_BIT : 0) | GL_DEPTH_BUFFER_BIT);
 
-    glMatrixMode(GL_PROJECTION);
+    gufMatrixMode(GUF_PROJECTION);
     glLoadIdentity();
     int farplane = fog*5/2;
-    gluPerspective(fovy, aspect, 0.15f, farplane);
-    glMatrixMode(GL_MODELVIEW);
+    gufPerspective(fovy, aspect, 0.15f, farplane);
+    gufMatrixMode(GUF_MODELVIEW);
 
     transplayer();
 

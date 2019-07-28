@@ -7,12 +7,16 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8.0)
 
 #include_directories( ./inc )
 include_directories( ./enet/include )
+include_directories( ./guf/inc )
 
 
 file(GLOB ENET
 	enet/*.c
 	)
 
+file(GLOB GUF
+	guf/*.cpp
+	)
 
 file(GLOB CUBE_CLIENT
 	src/client.cpp
@@ -56,7 +60,7 @@ file(GLOB CUBE_SERVER
 	src/tools.cpp
 	)
 
-add_executable(client ${ENET} ${CUBE_CLIENT})
+add_executable(client ${ENET} ${GUF} ${CUBE_CLIENT})
 
 target_link_libraries(client SDL2)
 target_link_libraries(client SDL2_image)
