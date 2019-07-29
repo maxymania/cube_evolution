@@ -275,8 +275,6 @@ enum    // function signatures for script functions, see command.cpp
 
 #if 1
 #include <GL/gl.h>
-#include <GL/glu.h>
-//#include <GL/glext.h>
 #else
 #include <GLES2/gl2.h>
 #endif

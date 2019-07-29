@@ -16,7 +16,7 @@ bool hasoverbright = false;
 
 void purgetextures();
 
-GLUquadricObj *qsphere = NULL;
+
 int glmaxtexsize = 256;
 
 void gl_init(int w, int h)
@@ -53,18 +53,13 @@ void gl_init(int w, int h)
         
     purgetextures();
 
-    if(!(qsphere = gluNewQuadric())) fatal("glu sphere");
-    gluQuadricDrawStyle(qsphere, GLU_FILL);
-    gluQuadricOrientation(qsphere, GLU_INSIDE);
-    gluQuadricTexture(qsphere, GL_TRUE);
     glNewList(1, GL_COMPILE);
-    gluSphere(qsphere, 1, 12, 6);
+    gufSphere(GUF_INSIDE,1, 12, 12);
     glEndList();
 };
 
 void cleangl()
 {
-    if(qsphere) gluDeleteQuadric(qsphere);
 };
 
 bool installtex(int tnum, char *texname, int &xs, int &ys, bool clamp)
@@ -80,18 +75,20 @@ bool installtex(int tnum, char *texname, int &xs, int &ys, bool clamp)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); //NEAREST);
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
+    bool scaled = false;
     xs = s->w;
     ys = s->h;
-    while(xs>glmaxtexsize || ys>glmaxtexsize) { xs /= 2; ys /= 2; };
+    scaled = gufCorrectTextureSize(xs,ys);
+    while(xs>glmaxtexsize || ys>glmaxtexsize) { xs /= 2; ys /= 2; scaled = true; };
     void *scaledimg = s->pixels;
-    if(xs!=s->w)
+    if(scaled)
     {
         conoutf("warning: quality loss: scaling %s", texname);     // for voodoo cards under linux
         scaledimg = alloc(xs*ys*3);
-        gluScaleImage(GL_RGB, s->w, s->h, GL_UNSIGNED_BYTE, s->pixels, xs, ys, GL_UNSIGNED_BYTE, scaledimg);
+	gufScaleImage(3, s->w, s->h, s->pixels, xs, ys, scaledimg);
     };
-    if(gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, xs, ys, GL_RGB, GL_UNSIGNED_BYTE, scaledimg)) fatal("could not build mipmaps");
-    if(xs!=s->w) free(scaledimg);
+    if(gufBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, xs, ys, GL_RGB, GL_UNSIGNED_BYTE, scaledimg)) fatal("could not build mipmaps");
+    if(scaled) free(scaledimg);
     SDL_FreeSurface(s);
     return true;
 };
