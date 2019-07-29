@@ -110,7 +110,7 @@ int sev_unicode(const SDL_Event& event) {
 
 int main(int argc, char **argv)
 {   
-    bool desktop = false;
+    bool desktop = false,windowed = false;
     bool dedicated = false;
     int fs = SDL_WINDOW_FULLSCREEN, par = 0, uprate = 0, maxcl = 4;
     char *sdesc = charp"", *ip = charp"", *master = NULL, *passwd = charp"";
@@ -135,11 +135,13 @@ int main(int argc, char **argv)
             case 'p': passwd = a; break;
             case 'c': maxcl  = atoi(a); break;
 	    case 'S': desktop = true; break;
+	    case 'W': windowed = true; break;
             default:  conoutf("unknown commandline option");
         }
         else conoutf("unknown commandline argument");
     };
     
+    if(windowed) desktop = false;
     if(desktop) fs = SDL_WINDOW_FULLSCREEN_DESKTOP;
     
     //#define _DEBUG
@@ -147,6 +149,7 @@ int main(int argc, char **argv)
     par = SDL_INIT_NOPARACHUTE;
     fs = 0;
     #endif
+    if(windowed) fs = 0;
 
     if(SDL_Init(SDL_INIT_TIMER|SDL_INIT_VIDEO|par)<0) fatal("Unable to initialize SDL");
 
