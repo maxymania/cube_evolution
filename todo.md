@@ -1,6 +1,6 @@
 ### TODOs in order to migrate to OpenGL ES 2.0
 
-* Get rid of `GLU` (especially `gluSphere()`)
+* ~~Get rid of `GLU` (especially `gluSphere()`)~~ Done!
 * Replace `glPushMatrix`, `glPopMatrix` and other matrix-functions with their GUF- counterparts.
 * Deal with `glDrawArrays`, catch `glVertexPointer`, `glColorPointer` and `glTexCoordPointer` and convert them.
 
