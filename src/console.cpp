@@ -115,8 +115,8 @@ COMMAND(saycommand, ARG_VARI);
 COMMAND(mapmsg, ARG_1STR);
 
 #ifndef WIN32
-#include <X11/Xlib.h>
-#include <SDL/SDL_syswm.h>
+//#include <X11/Xlib.h>
+//#include <SDL2/SDL_syswm.h>
 #endif
 
 void pasteconsole()

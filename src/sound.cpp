@@ -16,7 +16,7 @@ bool nosound = false;
 struct soundloc { vec loc; bool inuse; } soundlocs[MAXCHAN];
 
 #ifdef USE_MIXER
-    #include <SDL/SDL_mixer.h>
+    #include <SDL2/SDL_mixer.h>
     #define MAXVOL MIX_MAX_VOLUME
     Mix_Music *mod = NULL;
     void *stream = NULL;
