@@ -70,6 +70,11 @@ void gufOrtho(float left,  float right,  float bottom,  float top,  float nearVa
 void gufPushMatrix( void);
 void gufPopMatrix( void);
 
+/* OpenGL Basic API. */
+void gufBasicClearDepth(float f);
+void gufBasicEnableSmoothShadeModel(void);
+void gufBasicSmoothLineHint(void);
+
 /* OpenGL 1.1 Draw API for per-object lit geometry. */
 void gufGeometrySetColor(float r,float g,float b,float a = 1.0f);
 void gufGeometryBegin(int_u gl_primitive);

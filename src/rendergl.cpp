@@ -24,10 +24,10 @@ void gl_init(int w, int h)
     //#define fogvalues 0.5f, 0.6f, 0.7f, 1.0f
 
     glViewport(0, 0, w, h);
-    glClearDepth(1.0);
+    gufBasicClearDepth(1.0);
     glDepthFunc(GL_LESS);
     glEnable(GL_DEPTH_TEST);
-    glShadeModel(GL_SMOOTH);
+    gufBasicEnableSmoothShadeModel();
     
     
     gufSetEnabled(GUF_FOG,true);
@@ -35,7 +35,7 @@ void gl_init(int w, int h)
     
 
     gufSetEnabled(GUF_LINE_SMOOTH,true);
-    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+    gufBasicSmoothLineHint();
     gufSetEnabled(GUF_POLYGON_OFFSET_LINE,true);
     glPolygonOffset(-3.0, -3.0);
 

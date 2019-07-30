@@ -96,6 +96,17 @@ void gufPopMatrix( void) {
 	glPopMatrix();
 }
 
+/* OpenGL Basic API. */
+void gufBasicClearDepth(float f){
+	glClearDepth(f);
+}
+void gufBasicEnableSmoothShadeModel(void){
+	glShadeModel(GL_SMOOTH);
+}
+void gufBasicSmoothLineHint(void) {
+	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+}
+
 /* OpenGL 1.1 Draw API for per-object lit geometry. */
 void gufGeometrySetColor(float r,float g,float b,float a) {
 	glColor4f(r,g,b,a);
@@ -126,6 +137,8 @@ void gufGeometryEndList(void){
 void gufGeometryCallList(int_u list){
 	glCallList(list);
 }
+
+
 /* OpenGL 1.1 / ES1 API for per-vertex lit level geometry. */
 void gufLevelEnableClientState(void) {
 	glEnableClientState(GL_VERTEX_ARRAY);

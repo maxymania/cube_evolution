@@ -8,6 +8,7 @@
 //#include <GL/glext.h>
 #else
 #include <GLES2/gl2.h>
+#include <EGL/egl.h>
 // This feature is specific to OpenGL ES 2.0 (or later) and OpenGL 3.0 (or later).
 #define HAS_glGenerateMipmap
 #endif
