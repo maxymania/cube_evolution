@@ -19,6 +19,7 @@
 */
 #include <GUF/sdl.h>
 #include "glb.h"
+#include <stdlib.h>
 
 #ifndef USE_DESKTOP_GL
 
@@ -76,7 +77,7 @@ static bool initializeEgl(SDL_Window *window)
 }
 
 void gufSDL_GL_Context(SDL_Window *window) {
-	if(!initializeEgl(window)) return; // TODO: catch!
+	if(!initializeEgl(window)) { _Exit(1); return; } // TODO: catch!
 	// Don't need to. Is already current!
 	//eglMakeCurrent(egl_display,egl_surface,egl_surface,egl_context);
 	

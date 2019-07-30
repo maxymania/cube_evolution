@@ -174,6 +174,12 @@ bool gufUnProject(double winx, double winy, double winz,
 	return true;
 }
 
+static void xxMultMatrixd(const double *m) {
+	static float n[16];
+	for(int i(0);i<16;++i) n[i] = (float)(m[i]);
+	gufMultMatrixf(n);
+}
+
 void gufPerspective(double fovy, double aspect, double zNear, double zFar)
 {
     double m[4][4];
@@ -194,7 +200,7 @@ void gufPerspective(double fovy, double aspect, double zNear, double zFar)
     m[2][3] = -1;
     m[3][2] = -2 * zNear * zFar / deltaZ;
     m[3][3] = 0;
-    glMultMatrixd(&m[0][0]);
+    xxMultMatrixd(&m[0][0]);
 }
 
 void gufPerspectivef(float fovy, float aspect, float zNear, float zFar)
@@ -217,6 +223,6 @@ void gufPerspectivef(float fovy, float aspect, float zNear, float zFar)
     m[2][3] = -1;
     m[3][2] = -2 * zNear * zFar / deltaZ;
     m[3][3] = 0;
-    glMultMatrixf(&m[0][0]);
+    gufMultMatrixf(&m[0][0]);
 }
 
