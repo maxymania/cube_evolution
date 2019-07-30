@@ -230,8 +230,9 @@ int main(int argc, char **argv)
         readdepth(scr_w, scr_h);
 	SDL_GL_SwapWindow(sdl_window);
         extern void updatevol(); updatevol();
-        if(framesinmap++<5)	// cheap hack to get rid of initial sparklies, even when triple buffering etc.
+        if(framesinmap<5)	// cheap hack to get rid of initial sparklies, even when triple buffering etc.
         {
+			framesinmap++;
 			player1->yaw += 5;
 			gl_drawframe(scr_w, scr_h, fps);
 			player1->yaw -= 5;

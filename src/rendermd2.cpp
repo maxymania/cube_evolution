@@ -127,12 +127,12 @@ void md2::render(vec &light, int frame, int range, float x, float y, float z, fl
 {
     loopi(range) if(!mverts[frame+i]) scale(frame+i, sc, snap);
     
-    glPushMatrix ();
-    glTranslatef(x, y, z);
-    glRotatef(yaw+180, 0, -1, 0);
-    glRotatef(pitch, 0, 0, 1);
+    gufPushMatrix();
+    gufTranslatef(x, y, z);
+    gufRotatef(yaw+180, 0, -1, 0);
+    gufRotatef(pitch, 0, 0, 1);
     
-	glColor3fv((float *)&light);
+    glColor3fv((float *)&light);
 
     if(displaylist && frame==0 && range==1)
     {
@@ -188,7 +188,7 @@ void md2::render(vec &light, int frame, int range, float x, float y, float z, fl
 		};
 	};
 
-    glPopMatrix();
+    gufPopMatrix();
 }
 
 hashtable<md2 *> *mdllookup = NULL;

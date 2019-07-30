@@ -4,13 +4,8 @@
 
 void line(int x1, int y1, float z1, int x2, int y2, float z2)
 {
-    glBegin(GL_POLYGON);
-    glVertex3f((float)x1, z1, (float)y1);
-    glVertex3f((float)x1, z1, y1+0.01f);
-    glVertex3f((float)x2, z2, y2+0.01f);
-    glVertex3f((float)x2, z2, (float)y2);
-    glEnd();
-    xtraverts += 4;
+    /* Don't need to swap y and z, because gufExtraLine does this. */
+    xtraverts += gufExtraLine(x1,y1,z1,x2,y2,z2);
 };
 
 void linestyle(float width, int r, int g, int b)
@@ -21,53 +16,37 @@ void linestyle(float width, int r, int g, int b)
 
 void box(block &b, float z1, float z2, float z3, float z4)
 {
-    glBegin(GL_POLYGON);
-    glVertex3f((float)b.x,      z1, (float)b.y);
-    glVertex3f((float)b.x+b.xs, z2, (float)b.y);
-    glVertex3f((float)b.x+b.xs, z3, (float)b.y+b.ys);
-    glVertex3f((float)b.x,      z4, (float)b.y+b.ys);
-    glEnd();
+    gufExtraBoxBegin();
+    gufExtraBoxVertex((float)b.x,      z1, (float)b.y);
+    gufExtraBoxVertex((float)b.x+b.xs, z2, (float)b.y);
+    gufExtraBoxVertex((float)b.x+b.xs, z3, (float)b.y+b.ys);
+    gufExtraBoxVertex((float)b.x,      z4, (float)b.y+b.ys);
+    gufExtraBoxEnd();
     xtraverts += 4;
 };
 
 void dot(int x, int y, float z)
 {
     const float DOF = 0.1f;
-    glBegin(GL_POLYGON);
-    glVertex3f(x-DOF, (float)z, y-DOF);
-    glVertex3f(x+DOF, (float)z, y-DOF);
-    glVertex3f(x+DOF, (float)z, y+DOF);
-    glVertex3f(x-DOF, (float)z, y+DOF);
-    glEnd();
+    gufExtraDot(x,z,y,DOF);
     xtraverts += 4;
 };
 
 void blendbox(int x1, int y1, int x2, int y2, bool border)
 {
     glDepthMask(GL_FALSE);
-    glDisable(GL_TEXTURE_2D);
+    gufSetEnabled(GUF_TEXTURE_2D,false);
     glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-    glBegin(GL_QUADS);
-    if(border) glColor3d(0.5, 0.3, 0.4); 
-    else glColor3d(1.0, 1.0, 1.0);
-    glVertex2i(x1, y1);
-    glVertex2i(x2, y1);
-    glVertex2i(x2, y2);
-    glVertex2i(x1, y2);
-    glEnd();
+
+    if(border) gufExtraBlendboxFill(x1,y1,x2,y2,0.5, 0.3, 0.4);
+    else gufExtraBlendboxFill(x1,y1,x2,y2,1.0, 1.0, 1.0);
+    
     glDisable(GL_BLEND);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glBegin(GL_POLYGON);
-    glColor3d(0.2, 0.7, 0.4); 
-    glVertex2i(x1, y1);
-    glVertex2i(x2, y1);
-    glVertex2i(x2, y2);
-    glVertex2i(x1, y2);
-    glEnd();
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    gufExtraBlendboxSurround(x1,y1,x2,y2,0.2, 0.7, 0.4);
+    
     xtraverts += 8;
     glEnable(GL_BLEND);
-    glEnable(GL_TEXTURE_2D);
+    gufSetEnabled(GUF_TEXTURE_2D,true);
     glDepthMask(GL_TRUE);
 };
 
@@ -109,16 +88,16 @@ void renderspheres(int time)
 
     for(sphere *p, **pp = &slist; p = *pp;)
     {
-        glPushMatrix();
+        gufPushMatrix();
         float size = p->size/p->max;
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f-size);
-        glTranslatef(p->o.x, p->o.z, p->o.y);
-        glRotatef(lastmillis/5.0f, 1, 1, 1);
-        glScalef(p->size, p->size, p->size);
+        gufTranslatef(p->o.x, p->o.z, p->o.y);
+        gufRotatef(lastmillis/5.0f, 1, 1, 1);
+        gufScalef(p->size, p->size, p->size);
         glCallList(1);
-        glScalef(0.8f, 0.8f, 0.8f);
+        gufScalef(0.8f, 0.8f, 0.8f);
         glCallList(1);
-        glPopMatrix();
+        gufPopMatrix();
         xtraverts += 12*6*2;
 
         if(p->size>p->max)
@@ -193,8 +172,8 @@ vec worldpos;
 void readmatrices()
 {
     glGetIntegerv(GL_VIEWPORT, viewport);
-    glGetDoublev(GL_MODELVIEW_MATRIX, mm);
-    glGetDoublev(GL_PROJECTION_MATRIX, pm);
+    gufDumpTypeMatrixd(GUF_MODELVIEW, mm);
+    gufDumpTypeMatrixd(GUF_PROJECTION, pm);
 };
 
 // stupid function to cater for stupid ATI linux drivers that return incorrect depth values
@@ -210,9 +189,11 @@ float depthcorrect(float d)
 // also hits map entities which is unwanted.
 // could be replaced by a more acurate version of monster.cpp los() if needed
 
+// TODO: we need to find an alternative, because OpenGL ES 2.0 does not support glReadPixels(GL_DEPTH_COMPONENT)!
 void readdepth(int w, int h)
 {
     glReadPixels(w/2, h/2, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &cursordepth);
+    //cursordepth = 0.99f;
     double worldx = 0, worldy = 0, worldz = 0;
     gufUnProject(w/2, h/2, depthcorrect(cursordepth), mm, pm, viewport, &worldx, &worldz, &worldy);
     worldpos.x = (float)worldx;
@@ -222,20 +203,25 @@ void readdepth(int w, int h)
     vec u = { (float)mm[1], (float)mm[5], (float)mm[9] };
     setorient(r, u);
 };
+extern void fake_readdepth(void){
+    vec r = { (float)mm[0], (float)mm[4], (float)mm[8] };
+    vec u = { (float)mm[1], (float)mm[5], (float)mm[9] };
+    setorient(r, u);
+}
 
 void drawicon(float tx, float ty, int x, int y)
 {
     glBindTexture(GL_TEXTURE_2D, 5);
-    glBegin(GL_QUADS);
+    gufExtraIconBegin();
     tx /= 192;
     ty /= 192;
     float o = 1/3.0f;
     int s = 120;
-    glTexCoord2f(tx,   ty);   glVertex2i(x,   y);
-    glTexCoord2f(tx+o, ty);   glVertex2i(x+s, y);
-    glTexCoord2f(tx+o, ty+o); glVertex2i(x+s, y+s);
-    glTexCoord2f(tx,   ty+o); glVertex2i(x,   y+s);
-    glEnd();
+    gufExtraIconVertex(tx  , ty  , x  , y  );
+    gufExtraIconVertex(tx+o, ty  , x+s, y  );
+    gufExtraIconVertex(tx+o, ty+o, x+s, y+s);
+    gufExtraIconVertex(tx  , ty+o, x  , y+s);
+    gufExtraIconEnd();
     xtraverts += 4;
 };
 
@@ -251,7 +237,7 @@ void invertperspective()
     inv[3*4+2] = -1.0;
     inv[3*4+3] = pm[2*4+2]/pm[3*4+2];
 
-    glLoadMatrixd(inv);
+    gufLoadMatrixd(inv);
 };
 
 VARP(crosshairsize, 0, 15, 50);
@@ -275,8 +261,8 @@ void gl_drawhud(int w, int h, int curfps, int nquads, int curvert, bool underwat
 
     glDisable(GL_DEPTH_TEST);
     invertperspective();
-    glPushMatrix();  
-    glOrtho(0, VIRTW, VIRTH, 0, -1, 1);
+    gufPushMatrix();
+    gufOrtho(0, VIRTW, VIRTH, 0, -1, 1);
     glEnable(GL_BLEND);
 
     glDepthMask(GL_FALSE);
@@ -284,19 +270,14 @@ void gl_drawhud(int w, int h, int curfps, int nquads, int curvert, bool underwat
     if(dblend || underwater)
     {
         glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-        glBegin(GL_QUADS);
-        if(dblend) glColor3d(0.0f, 0.9f, 0.9f);
-        else glColor3d(0.9f, 0.5f, 0.0f);
-        glVertex2i(0, 0);
-        glVertex2i(VIRTW, 0);
-        glVertex2i(VIRTW, VIRTH);
-        glVertex2i(0, VIRTH);
-        glEnd();
+	if(dblend) gufExtraBlendScreen(VIRTW,VIRTH,0.0f, 0.9f, 0.9f);
+        else gufExtraBlendScreen(VIRTW,VIRTH,0.9f, 0.5f, 0.0f);
+	
         dblend -= curtime/3;
         if(dblend<0) dblend = 0;
     };
 
-    glEnable(GL_TEXTURE_2D);
+    gufSetEnabled(GUF_TEXTURE_2D,true);
 
     char *command = getcurcommand();
     char *player = playerincrosshair();
@@ -309,64 +290,64 @@ void gl_drawhud(int w, int h, int curfps, int nquads, int curvert, bool underwat
     {
         glBlendFunc(GL_SRC_ALPHA, GL_SRC_ALPHA);
         glBindTexture(GL_TEXTURE_2D, 1);
-        glBegin(GL_QUADS);
-        glColor3ub(255,255,255);
+        gufExtraIconBegin();
+	gufExtraIconSetRGB(255,255,255);
         if(crosshairfx)
         {
-            if(player1->gunwait) glColor3ub(128,128,128);
-            else if(player1->health<=25) glColor3ub(255,0,0);
-            else if(player1->health<=50) glColor3ub(255,128,0);
-        };
+            if(player1->gunwait) gufExtraIconSetRGB(128,128,128);
+            else if(player1->health<=25) gufExtraIconSetRGB(255,0,0);
+            else if(player1->health<=50) gufExtraIconSetRGB(255,128,0);
+        }
         float chsize = (float)crosshairsize;
-        glTexCoord2d(0.0, 0.0); glVertex2f(VIRTW/2 - chsize, VIRTH/2 - chsize);
-        glTexCoord2d(1.0, 0.0); glVertex2f(VIRTW/2 + chsize, VIRTH/2 - chsize);
-        glTexCoord2d(1.0, 1.0); glVertex2f(VIRTW/2 + chsize, VIRTH/2 + chsize);
-        glTexCoord2d(0.0, 1.0); glVertex2f(VIRTW/2 - chsize, VIRTH/2 + chsize);
-        glEnd();
+        gufExtraIconVertex(0.0, 0.0, VIRTW/2 - chsize, VIRTH/2 - chsize);
+        gufExtraIconVertex(1.0, 0.0, VIRTW/2 + chsize, VIRTH/2 - chsize);
+        gufExtraIconVertex(1.0, 1.0, VIRTW/2 + chsize, VIRTH/2 + chsize);
+        gufExtraIconVertex(0.0, 1.0, VIRTW/2 - chsize, VIRTH/2 + chsize);
+        gufExtraIconEnd();
     };
 
-    glPopMatrix();
+    gufPopMatrix();
 
-    glPushMatrix();    
-    glOrtho(0, VIRTW*4/3, VIRTH*4/3, 0, -1, 1);
+    gufPushMatrix();
+    gufOrtho(0, VIRTW*4/3, VIRTH*4/3, 0, -1, 1);
     renderconsole();
 
     if(!hidestats)
     {
-        glPopMatrix();
-        glPushMatrix();
-        glOrtho(0, VIRTW*3/2, VIRTH*3/2, 0, -1, 1);
+        gufPopMatrix();
+        gufPushMatrix();
+        gufOrtho(0, VIRTW*3/2, VIRTH*3/2, 0, -1, 1);
         draw_textf(charp"fps %d", 3200, 2390, 2, curfps);
         draw_textf(charp"wqd %d", 3200, 2460, 2, nquads); 
         draw_textf(charp"wvt %d", 3200, 2530, 2, curvert);
         draw_textf(charp"evt %d", 3200, 2600, 2, xtraverts);
     };
     
-    glPopMatrix();
+    gufPopMatrix();
 
     if(player1->state==CS_ALIVE)
     {
-        glPushMatrix();
-        glOrtho(0, VIRTW/2, VIRTH/2, 0, -1, 1);
+        gufPushMatrix();
+        gufOrtho(0, VIRTW/2, VIRTH/2, 0, -1, 1);
         draw_textf(charp"%d",  90, 827, 2, player1->health);
         if(player1->armour) draw_textf(charp"%d", 390, 827, 2, player1->armour);
         draw_textf(charp"%d", 690, 827, 2, player1->ammo[player1->gunselect]);
-        glPopMatrix();
-        glPushMatrix();
-        glOrtho(0, VIRTW, VIRTH, 0, -1, 1);
+        gufPopMatrix();
+        gufPushMatrix();
+        gufOrtho(0, VIRTW, VIRTH, 0, -1, 1);
         glDisable(GL_BLEND);
         drawicon(128, 128, 20, 1650);
         if(player1->armour) drawicon((float)(player1->armourtype*64), 0, 620, 1650); 
         int g = player1->gunselect;
         int r = 64;
         if(g>2) { g -= 3; r = 128; };
-        drawicon((float)(g*64), (float)r, 1220, 1650);   
-        glPopMatrix();
+        drawicon((float)(g*64), (float)r, 1220, 1650);
+        gufPopMatrix();
     };
 
     glDepthMask(GL_TRUE);
     glDisable(GL_BLEND);
-    glDisable(GL_TEXTURE_2D);
+    gufSetEnabled(GUF_TEXTURE_2D,false);
     glEnable(GL_DEPTH_TEST);
 };
 

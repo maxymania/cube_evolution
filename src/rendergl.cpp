@@ -2,6 +2,7 @@
 
 #include "cube.h"
 
+
 #ifdef DARWIN
 #define GL_COMBINE_EXT GL_COMBINE_ARB
 #define GL_COMBINE_RGB_EXT GL_COMBINE_RGB_ARB
@@ -16,7 +17,6 @@ bool hasoverbright = false;
 
 void purgetextures();
 
-
 int glmaxtexsize = 256;
 
 void gl_init(int w, int h)
@@ -30,27 +30,23 @@ void gl_init(int w, int h)
     glShadeModel(GL_SMOOTH);
     
     
-    glEnable(GL_FOG);
-    glFogi(GL_FOG_MODE, GL_LINEAR);
-    glFogf(GL_FOG_DENSITY, 0.25);
-    glHint(GL_FOG_HINT, GL_NICEST);
+    gufSetEnabled(GUF_FOG,true);
+    gufFogSetup();
     
 
-    glEnable(GL_LINE_SMOOTH);
+    gufSetEnabled(GUF_LINE_SMOOTH,true);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-    glEnable(GL_POLYGON_OFFSET_LINE);
+    gufSetEnabled(GUF_POLYGON_OFFSET_LINE,true);
     glPolygonOffset(-3.0, -3.0);
 
     glCullFace(GL_FRONT);
     glEnable(GL_CULL_FACE);
 
-    char *exts = (char *)glGetString(GL_EXTENSIONS);
-    
-    if(strstr(exts, "GL_EXT_texture_env_combine")) hasoverbright = true;
-    else conoutf("WARNING: cannot use overbright lighting, using old lighting model!");
+    hasoverbright = gufOverbrightSupported();
+    if(!hasoverbright) conoutf("WARNING: cannot use overbright lighting, using old lighting model!");
         
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &glmaxtexsize);
-        
+    
     purgetextures();
 
     glNewList(1, GL_COMPILE);
@@ -74,7 +70,7 @@ bool installtex(int tnum, char *texname, int &xs, int &ys, bool clamp)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); //NEAREST);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
+    gufOverbrightTextureEnable();
     bool scaled = false;
     xs = s->w;
     ys = s->h;
@@ -185,13 +181,7 @@ void setupworld()
     glEnableClientState(GL_TEXTURE_COORD_ARRAY); 
     setarraypointers();
 
-    if(hasoverbright)
-    {
-        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT); 
-        glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
-        glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_EXT, GL_TEXTURE);
-        glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_EXT, GL_PRIMARY_COLOR_EXT);
-    };
+    if(hasoverbright) gufOverbrightWorldInit();
 };
 
 int skyoglid;
@@ -219,7 +209,7 @@ void renderstrips()
     };   
 };
 
-void overbright(float amount) { if(hasoverbright) glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_EXT, amount ); };
+void overbright(float amount) { if(hasoverbright) gufOverbright(amount); };
 
 void addstrip(int tex, int start, int n)
 {
@@ -242,13 +232,13 @@ VARFP(gamma, 30, 100, 300,
 
 void transplayer()
 {
-    glLoadIdentity();
+    gufLoadIdentity();
     
-    glRotated(player1->roll,0.0,0.0,1.0);
-    glRotated(player1->pitch,-1.0,0.0,0.0);
-    glRotated(player1->yaw,0.0,1.0,0.0);
+    gufRotatef(player1->roll , 0.0f,0.0f,1.0f);
+    gufRotatef(player1->pitch,-1.0f,0.0f,0.0f);
+    gufRotatef(player1->yaw  , 0.0f,1.0f,0.0f);
 
-    glTranslated(-player1->o.x, (player1->state==CS_DEAD ? player1->eyeheight-0.2f : 0)-player1->o.z, -player1->o.y);   
+    gufTranslatef(-player1->o.x, (player1->state==CS_DEAD ? player1->eyeheight-0.2f : 0)-player1->o.z, -player1->o.y);   
 };
 
 VARP(fov, 10, 105, 120);
@@ -274,7 +264,7 @@ void drawhudgun(float fovy, float aspect, int farplane)
     glEnable(GL_CULL_FACE);
     
     gufMatrixMode(GUF_PROJECTION);
-    glLoadIdentity();
+    gufLoadIdentity();
     gufPerspective(fovy, aspect, 0.3f, farplane);
     gufMatrixMode(GUF_MODELVIEW);
     
@@ -290,7 +280,7 @@ void drawhudgun(float fovy, float aspect, int farplane)
     };
 
     gufMatrixMode(GUF_PROJECTION);
-    glLoadIdentity();
+    gufLoadIdentity();
     gufPerspective(fovy, aspect, 0.15f, farplane);
     gufMatrixMode(GUF_MODELVIEW);
 
@@ -304,31 +294,32 @@ void gl_drawframe(int w, int h, float curfps)
     float aspect = w/(float)h;
     bool underwater = player1->o.z<hf;
     
-    glFogi(GL_FOG_START, (fog+64)/8);
-    glFogi(GL_FOG_END, fog);
+    
+    gufFogStart((fog+64)/8);
+    gufFogEnd(fog);
     float fogc[4] = { (fogcolour>>16)/256.0f, ((fogcolour>>8)&255)/256.0f, (fogcolour&255)/256.0f, 1.0f };
-    glFogfv(GL_FOG_COLOR, fogc);
+    gufFogColor(fogc);
     glClearColor(fogc[0], fogc[1], fogc[2], 1.0f);
 
     if(underwater)
     {
         fovy += (float)sin(lastmillis/1000.0)*2.0f;
         aspect += (float)sin(lastmillis/1000.0+PI)*0.1f;
-        glFogi(GL_FOG_START, 0);
-        glFogi(GL_FOG_END, (fog+96)/8);
+	gufFogStart(0);
+	gufFogEnd((fog+96)/8);
     };
     
     glClear((player1->outsidemap ? GL_COLOR_BUFFER_BIT : 0) | GL_DEPTH_BUFFER_BIT);
 
     gufMatrixMode(GUF_PROJECTION);
-    glLoadIdentity();
+    gufLoadIdentity();
     int farplane = fog*5/2;
     gufPerspective(fovy, aspect, 0.15f, farplane);
     gufMatrixMode(GUF_MODELVIEW);
 
     transplayer();
 
-    glEnable(GL_TEXTURE_2D);
+    gufSetEnabled(GUF_TEXTURE_2D,true);
     
     int xs, ys;
     skyoglid = lookuptexture(DEFAULT_SKY, xs, ys);
@@ -346,19 +337,19 @@ void gl_drawframe(int w, int h, float curfps)
 
     renderstripssky();
 
-    glLoadIdentity();
-    glRotated(player1->pitch, -1.0, 0.0, 0.0);
-    glRotated(player1->yaw,   0.0, 1.0, 0.0);
-    glRotated(90.0, 1.0, 0.0, 0.0);
+    gufLoadIdentity();
+    gufRotatef(player1->pitch, -1.0f, 0.0f, 0.0f);
+    gufRotatef(player1->yaw ,   0.0f, 1.0f, 0.0f);
+    gufRotatef(90.0f, 1.0f, 0.0f, 0.0f);
     glColor3f(1.0f, 1.0f, 1.0f);
-    glDisable(GL_FOG);
+    gufSetEnabled(GUF_FOG,false);
     glDepthFunc(GL_GREATER);
     draw_envbox(14, fog*4/3);
     glDepthFunc(GL_LESS);
-    glEnable(GL_FOG);
+    gufSetEnabled(GUF_FOG,true);
 
     transplayer();
-        
+    
     overbright(2);
     
     renderstrips();
@@ -384,13 +375,13 @@ void gl_drawframe(int w, int h, float curfps)
     render_particles(curtime);
     overbright(1);
 
-    glDisable(GL_FOG);
+    gufSetEnabled(GUF_FOG,false);
 
-    glDisable(GL_TEXTURE_2D);
+    gufSetEnabled(GUF_TEXTURE_2D,false);
 
     gl_drawhud(w, h, (int)curfps, nquads, curvert, underwater);
 
     glEnable(GL_CULL_FACE);
-    glEnable(GL_FOG);
+    gufSetEnabled(GUF_FOG,true);
 };
 

@@ -53,7 +53,7 @@ void render_particles(int time)
     glDepthMask(GL_FALSE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_SRC_ALPHA);
-    glDisable(GL_FOG);
+    gufSetEnabled(GUF_FOG,false);
     
     struct parttype { float r, g, b; int gr, tex; float sz; } parttypes[] =
     {
@@ -104,7 +104,7 @@ void render_particles(int time)
         };
     };
 
-    glEnable(GL_FOG);
+    gufSetEnabled(GUF_FOG,true);
     glDisable(GL_BLEND);
     glDepthMask(GL_TRUE);
 };
