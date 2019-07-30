@@ -81,6 +81,13 @@ void gufGeometryNewList(int_u list);
 void gufGeometryEndList(void);
 void gufGeometryCallList(int_u list);
 
+/* OpenGL 1.1 / ES1 API for per-vertex lit level geometry. */
+void gufLevelEnableClientState(void);
+void gufLevelVertexPtr3f(int_u stride,const void* ptr);
+void gufLevelColorPtr4b(int_u stride,const void* ptr);
+void gufLevelTexCoordPtr2f(int_u stride,const void* ptr);
+void gufLevelDrawArrays(int_u mode,  int first,  int_u count);
+
 /* OpenGL 1.1 Enable/Disable substitute */
 void gufSetEnabled(int_u feature,bool enabled);
 

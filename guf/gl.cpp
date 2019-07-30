@@ -126,6 +126,24 @@ void gufGeometryEndList(void){
 void gufGeometryCallList(int_u list){
 	glCallList(list);
 }
+/* OpenGL 1.1 / ES1 API for per-vertex lit level geometry. */
+void gufLevelEnableClientState(void) {
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);	
+}
+void gufLevelVertexPtr3f(int_u stride,const void* ptr) {
+	glVertexPointer(3, GL_FLOAT, stride, ptr);
+}
+void gufLevelColorPtr4b(int_u stride,const void* ptr) {
+	glColorPointer(4, GL_UNSIGNED_BYTE, stride, ptr);
+}
+void gufLevelTexCoordPtr2f(int_u stride,const void* ptr) {
+	glTexCoordPointer(2, GL_FLOAT, stride, ptr);
+}
+void gufLevelDrawArrays(int_u mode,  int first,  int_u count){
+	glDrawArrays(mode,first,count);
+}
 
 /* OpenGL 1.1 Enable/Disable substitute */
 #define ENDIS(x) if(enabled) glEnable(x); else glDisable(x); break

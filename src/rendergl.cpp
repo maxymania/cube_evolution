@@ -176,9 +176,7 @@ int lookuptexture(int tex, int &xs, int &ys)
 
 void setupworld()
 {
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY); 
+    gufLevelEnableClientState();
     setarraypointers();
 
     if(hasoverbright) gufOverbrightWorldInit();
@@ -192,7 +190,7 @@ vector<strip> strips;
 void renderstripssky()
 {
     glBindTexture(GL_TEXTURE_2D, skyoglid);
-    loopv(strips) if(strips[i].tex==skyoglid) glDrawArrays(GL_TRIANGLE_STRIP, strips[i].start, strips[i].num);
+    loopv(strips) if(strips[i].tex==skyoglid) gufLevelDrawArrays(GL_TRIANGLE_STRIP, strips[i].start, strips[i].num);
 };
 
 void renderstrips()
@@ -205,7 +203,7 @@ void renderstrips()
             glBindTexture(GL_TEXTURE_2D, strips[i].tex); 
             lasttex = strips[i].tex;
         };
-        glDrawArrays(GL_TRIANGLE_STRIP, strips[i].start, strips[i].num);  
+        gufLevelDrawArrays(GL_TRIANGLE_STRIP, strips[i].start, strips[i].num);  
     };   
 };
 

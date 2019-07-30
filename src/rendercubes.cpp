@@ -8,9 +8,9 @@ int curmaxverts = 10000;
 
 void setarraypointers()
 {
-    glVertexPointer(3, GL_FLOAT, sizeof(vertex), &verts[0].x);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(vertex), &verts[0].r);
-    glTexCoordPointer(2, GL_FLOAT, sizeof(vertex), &verts[0].u);
+    gufLevelVertexPtr3f(sizeof(vertex), &verts[0].x);
+    gufLevelColorPtr4b(sizeof(vertex), &verts[0].r);
+    gufLevelTexCoordPtr2f(sizeof(vertex), &verts[0].u);
 };
 
 void reallocv()
@@ -317,7 +317,7 @@ int renderwater(float hf)
         int n = (wy2-wy1-1)/watersubdiv;
         nquads += n;
         n = (n+2)*2;
-        glDrawArrays(GL_TRIANGLE_STRIP, curvert -= n, n);
+        gufLevelDrawArrays(GL_TRIANGLE_STRIP, curvert -= n, n);
     };
     
     glDisable(GL_BLEND);
