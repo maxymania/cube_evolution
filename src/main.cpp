@@ -1,6 +1,7 @@
 // main.cpp: initialisation & main loop
 
 #include "cube.h"
+#include <GUF/sdl.h>
 
 void cleanup(char *msg)         // single program exit point;
 {
@@ -85,7 +86,6 @@ VARP(minmillis, 0, 5, 1000);
 int islittleendian = 1;
 int framesinmap = 0;
 SDL_Window *sdl_window;
-SDL_GLContext sdl_context;
 
 // Emulate event.key.keysym.unicode
 int sev_unicode(const SDL_Event& event) {
@@ -170,8 +170,7 @@ int main(int argc, char **argv)
     if(sdl_window==NULL) fatal("Unable to create OpenGL screen");
     if(desktop) SDL_GetWindowSize(sdl_window,&scr_w,&scr_h);
     
-    sdl_context = SDL_GL_CreateContext(sdl_window);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    gufSDL_GL_Context(sdl_window);
 
     log("video: misc");
     //SDL_WM_SetCaption("cube engine", NULL);
@@ -228,7 +227,7 @@ int main(int argc, char **argv)
         fps = (1000.0f/curtime+fps*50)/51;
         computeraytable(player1->o.x, player1->o.y);
         readdepth(scr_w, scr_h);
-	SDL_GL_SwapWindow(sdl_window);
+	gufSDL_GL_SwapBuffers(sdl_window);
         extern void updatevol(); updatevol();
         if(framesinmap<5)	// cheap hack to get rid of initial sparklies, even when triple buffering etc.
         {
