@@ -203,11 +203,6 @@ void readdepth(int w, int h)
     vec u = { (float)mm[1], (float)mm[5], (float)mm[9] };
     setorient(r, u);
 };
-extern void fake_readdepth(void){
-    vec r = { (float)mm[0], (float)mm[4], (float)mm[8] };
-    vec u = { (float)mm[1], (float)mm[5], (float)mm[9] };
-    setorient(r, u);
-}
 
 void drawicon(float tx, float ty, int x, int y)
 {
