@@ -273,7 +273,7 @@ enum    // function signatures for script functions, see command.cpp
 
 #include <time.h>
 
-#if 1
+#if 0
 #include <GL/gl.h>
 #include <GL/glext.h>
 #else

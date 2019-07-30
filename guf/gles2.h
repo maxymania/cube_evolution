@@ -3,6 +3,7 @@
 #define locValid(x) ((x)>=0)
 namespace gufgles2 {
 	void init(void);
+	void init2(void);
 	
 	struct Program {
 		GLuint program;
@@ -17,9 +18,7 @@ namespace gufgles2 {
 			GLint color; /* Per-Vertex color. */
 		} a;
 	};
-	Program programs[4]; /*
-	[0] -> level geometry.
-	[1] -> objects.
-	[2] -> ...
-	*/
 }
+
+#define DEF_PROGRAMS gufgles2::Program gufgles2_programs[4];
+extern DEF_PROGRAMS;

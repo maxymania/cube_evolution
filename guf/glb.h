@@ -1,6 +1,6 @@
 #pragma once
 
-#define USE_DESKTOP_GL
+//#define USE_DESKTOP_GL
 
 #ifdef USE_DESKTOP_GL
 #include <GL/gl.h>

@@ -18,7 +18,7 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 #include <GUF/sdl.h>
-#include "glb.h"
+#include "gles2.h"
 #include <stdlib.h>
 
 #ifndef USE_DESKTOP_GL
@@ -78,6 +78,8 @@ static bool initializeEgl(SDL_Window *window)
 
 void gufSDL_GL_Context(SDL_Window *window) {
 	if(!initializeEgl(window)) { _Exit(1); return; } // TODO: catch!
+	gufgles2::init();
+	gufgles2::init2();
 	// Don't need to. Is already current!
 	//eglMakeCurrent(egl_display,egl_surface,egl_surface,egl_context);
 	

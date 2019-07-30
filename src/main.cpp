@@ -214,6 +214,8 @@ int main(int argc, char **argv)
     
     log("mainloop");
     int ignore = 5;
+    glClearColor(0.5,0.0,0.0,1.0);
+    //glClear(GL_COLOR_BUFFER_BIT);
     for(;;)
     {
         int millis = SDL_GetTicks()*gamespeed/100;
@@ -229,6 +231,7 @@ int main(int argc, char **argv)
         readdepth(scr_w, scr_h);
 	gufSDL_GL_SwapBuffers(sdl_window);
         extern void updatevol(); updatevol();
+	glClear(GL_COLOR_BUFFER_BIT);
         if(framesinmap<5)	// cheap hack to get rid of initial sparklies, even when triple buffering etc.
         {
 			framesinmap++;

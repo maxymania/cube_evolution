@@ -5,8 +5,8 @@
 * ~~Find `glBegin` - `glEnd` braces for particles and special effects and replace them.~~ Done!
 * ~~Find `glBegin` - `glEnd` braces for geometry.~~ Done!
 * ~~Deal with `glDrawArrays`, catch `glVertexPointer`, `glColorPointer` and `glTexCoordPointer` and convert them.~~
-* Build EGL/SDL layer in GUF.
-* Rewrite all GUF routines to OpenGL ES 2.0
+* ~~Build EGL/SDL layer in GUF.~~ Done!
+* ~~Rewrite all GUF routines to OpenGL ES 2.0~~ Not yet. **ALMOST**
 
 Terms:
 
