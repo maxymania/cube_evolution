@@ -242,9 +242,9 @@ void gl_drawhud(int w, int h, int curfps, int nquads, int curvert, bool underwat
     if(editmode)
     {
         if(cursordepth==1.0f) worldpos = player1->o;
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	gufSetEnabled(GUF_WIREFRAME, true);
         cursorupdate();
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	gufSetEnabled(GUF_WIREFRAME, false);
     };
 
     glDisable(GL_DEPTH_TEST);

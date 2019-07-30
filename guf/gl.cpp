@@ -153,6 +153,7 @@ void gufSetEnabled(int_u feature,bool enabled) {
 	case GUF_FOG: ENDIS(GL_FOG);
 	case GUF_LINE_SMOOTH: ENDIS(GL_LINE_SMOOTH);
 	case GUF_POLYGON_OFFSET_LINE: ENDIS(GL_POLYGON_OFFSET_LINE);
+	case GUF_WIREFRAME: glPolygonMode(GL_FRONT_AND_BACK,enabled?GL_LINE:GL_FILL);
 	}
 }
 #undef ENDIS

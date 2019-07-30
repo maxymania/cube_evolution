@@ -15,6 +15,7 @@ enum {
 	GUF_FOG,
 	GUF_LINE_SMOOTH,
 	GUF_POLYGON_OFFSET_LINE,
+	GUF_WIREFRAME,
 };
 
 typedef unsigned int GUFenum;
