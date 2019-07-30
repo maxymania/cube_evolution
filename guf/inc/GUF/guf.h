@@ -43,6 +43,8 @@ int gufBuild2DMipmaps(int_u target,  int internalFormat,  int_u width,  int_u he
 
 /* OpenGL 1.1 substitutes. */
 
+void gufReadDepthBuffer(int x,int y,float &depth);
+
 /* glLoadMatrixf(...) */
 void gufLoadMatrixf(const float * m);
 void gufLoadMatrixd(const double * m);
@@ -66,6 +68,18 @@ void glOrtho(GLdouble left,  GLdouble right,  GLdouble bottom,  GLdouble top,  G
 void gufOrtho(float left,  float right,  float bottom,  float top,  float nearVal,  float farVal);
 void gufPushMatrix( void);
 void gufPopMatrix( void);
+
+/* OpenGL 1.1 Draw API for per-object lit geometry. */
+void gufGeometrySetColor(float r,float g,float b,float a = 1.0f);
+void gufGeometryBegin(int_u gl_primitive);
+void gufGeometryTexCoord2f(float u,float v);
+void gufGeometryNormal3f(float x,float y,float z);
+void gufGeometryVertex3f(float x,float y,float z);
+void gufGeometryEnd(void);
+/* List equivalents. */
+void gufGeometryNewList(int_u list);
+void gufGeometryEndList(void);
+void gufGeometryCallList(int_u list);
 
 /* OpenGL 1.1 Enable/Disable substitute */
 void gufSetEnabled(int_u feature,bool enabled);
@@ -91,6 +105,7 @@ void gufFogColor(const float *fv4);
 int gufExtraLine(float x1,float y1,float z1,float x2,float y2,float z2); /* NOTE: y and z are swapped! */
 
 // Wire-frame box.
+void gufExtraLineColor(int r,int g,int b);
 void gufExtraBoxBegin(void);
 void gufExtraBoxVertex(float x,float y,float z);
 void gufExtraBoxEnd(void);

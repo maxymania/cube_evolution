@@ -128,7 +128,8 @@ void draw_text(char *str, int left, int top, int gl_num)
 {
     glBlendFunc(GL_ONE, GL_ONE);
     glBindTexture(GL_TEXTURE_2D, gl_num);
-    glColor3ub(255,255,255);
+    gufExtraIconSetRGB(255,255,255);
+    
 
     int x = left;
     int y = top;
@@ -141,7 +142,7 @@ void draw_text(char *str, int left, int top, int gl_num)
     {
         int c = str[i];
         if(c=='\t') { x = (x-left+PIXELTAB)/PIXELTAB*PIXELTAB+left; continue; }; 
-        if(c=='\f') { glColor3ub(64,255,128); continue; };
+        if(c=='\f') { gufExtraIconSetRGB(64,255,128); continue; };
         if(c==' ') { x += FONTH/2; continue; };
         c -= 33;
         if(c<0 || c>=95) continue;
@@ -175,12 +176,12 @@ void draw_envbox_aux(float s0, float t0, int x0, int y0, int z0,
                      int texture)
 {
     glBindTexture(GL_TEXTURE_2D, texture);
-    glBegin(GL_TRIANGLE_STRIP);
-    glTexCoord2f(s3, t3); glVertex3d(x3, y3, z3);
-    glTexCoord2f(s2, t2); glVertex3d(x2, y2, z2);
-    glTexCoord2f(s0, t0); glVertex3d(x0, y0, z0);
-    glTexCoord2f(s1, t1); glVertex3d(x1, y1, z1);
-    glEnd();
+    gufGeometryBegin(GL_TRIANGLE_STRIP);
+    gufGeometryTexCoord2f(s3, t3); gufGeometryVertex3f(x3, y3, z3);
+    gufGeometryTexCoord2f(s2, t2); gufGeometryVertex3f(x2, y2, z2);
+    gufGeometryTexCoord2f(s0, t0); gufGeometryVertex3f(x0, y0, z0);
+    gufGeometryTexCoord2f(s1, t1); gufGeometryVertex3f(x1, y1, z1);
+    gufGeometryEnd();
     xtraverts += 4;
 }
 

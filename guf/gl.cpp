@@ -10,6 +10,21 @@
 #include "glb.h"
 
 #ifdef USE_DESKTOP_GL
+namespace {
+// stupid function to cater for stupid ATI linux drivers that return incorrect depth values
+float depthcorrect(float d)
+{
+	return (d<=1/256.0f) ? d*256 : d;
+}
+}
+
+void gufReadDepthBuffer(int x,int y,float &depth){
+	float localDepth;
+	glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &localDepth);
+	depth = depthcorrect(localDepth);
+}
+
+/* Matrix-stuff */
 void gufDumpMatrixf(float * m){
 	GLint v;
 	glGetIntegerv(GL_MATRIX_MODE,&v);
@@ -81,6 +96,37 @@ void gufPopMatrix( void) {
 	glPopMatrix();
 }
 
+/* OpenGL 1.1 Draw API for per-object lit geometry. */
+void gufGeometrySetColor(float r,float g,float b,float a) {
+	glColor4f(r,g,b,a);
+}
+void gufGeometryBegin(int_u gl_primitive){
+	glBegin(gl_primitive);
+}
+void gufGeometryTexCoord2f(float u,float v){
+	glTexCoord2f(u,v);
+}
+void gufGeometryNormal3f(float x,float y,float z){
+	// We can silently ignore normals in this engine!
+	//glNormal3f(x,y,z);
+}
+void gufGeometryVertex3f(float x,float y,float z){
+	glVertex3f(x,y,z);
+}
+void gufGeometryEnd(void){
+	glEnd();
+}
+/* List equivalents. */
+void gufGeometryNewList(int_u list){
+	glNewList(list, GL_COMPILE);
+}
+void gufGeometryEndList(void){
+	glEndList();
+}
+void gufGeometryCallList(int_u list){
+	glCallList(list);
+}
+
 /* OpenGL 1.1 Enable/Disable substitute */
 #define ENDIS(x) if(enabled) glEnable(x); else glDisable(x); break
 void gufSetEnabled(int_u feature,bool enabled) {
@@ -114,6 +160,9 @@ void gufOverbright(float amount) {
 
 /* Render-Extras */
 
+void gufExtraLineColor(int r,int g,int b){
+	glColor3f(r/255.0f,g/255.0f,b/255.0f);
+}
 int gufExtraLine(float x1,float y1,float z1,float x2,float y2,float z2){
 	glBegin(GL_TRIANGLE_STRIP);
 	glVertex3f((float)x1, z1, (float)y1);

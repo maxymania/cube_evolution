@@ -11,7 +11,7 @@ void line(int x1, int y1, float z1, int x2, int y2, float z2)
 void linestyle(float width, int r, int g, int b)
 {
     glLineWidth(width);
-    glColor3ub(r,g,b);
+    gufExtraLineColor(r,g,b);
 };
 
 void box(block &b, float z1, float z2, float z3, float z4)
@@ -90,13 +90,13 @@ void renderspheres(int time)
     {
         gufPushMatrix();
         float size = p->size/p->max;
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f-size);
+        gufGeometrySetColor(1.0f, 1.0f, 1.0f, 1.0f-size);
         gufTranslatef(p->o.x, p->o.z, p->o.y);
         gufRotatef(lastmillis/5.0f, 1, 1, 1);
         gufScalef(p->size, p->size, p->size);
-        glCallList(1);
+        gufGeometryCallList(1);
         gufScalef(0.8f, 0.8f, 0.8f);
-        glCallList(1);
+        gufGeometryCallList(1);
         gufPopMatrix();
         xtraverts += 12*6*2;
 
@@ -176,12 +176,6 @@ void readmatrices()
     gufDumpTypeMatrixd(GUF_PROJECTION, pm);
 };
 
-// stupid function to cater for stupid ATI linux drivers that return incorrect depth values
-
-float depthcorrect(float d)
-{
-	return (d<=1/256.0f) ? d*256 : d;
-};
 
 // find out the 3d target of the crosshair in the world easily and very acurately.
 // sadly many very old cards and drivers appear to fuck up on glReadPixels() and give false
@@ -189,13 +183,12 @@ float depthcorrect(float d)
 // also hits map entities which is unwanted.
 // could be replaced by a more acurate version of monster.cpp los() if needed
 
-// TODO: we need to find an alternative, because OpenGL ES 2.0 does not support glReadPixels(GL_DEPTH_COMPONENT)!
 void readdepth(int w, int h)
 {
-    glReadPixels(w/2, h/2, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &cursordepth);
+    gufReadDepthBuffer(w/2,h/2,cursordepth);
     //cursordepth = 0.99f;
     double worldx = 0, worldy = 0, worldz = 0;
-    gufUnProject(w/2, h/2, depthcorrect(cursordepth), mm, pm, viewport, &worldx, &worldz, &worldy);
+    gufUnProject(w/2, h/2, cursordepth, mm, pm, viewport, &worldx, &worldz, &worldy);
     worldpos.x = (float)worldx;
     worldpos.y = (float)worldy;
     worldpos.z = (float)worldz;

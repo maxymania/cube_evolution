@@ -74,17 +74,19 @@ void render_particles(int time)
     {       
         parttype *pt = &parttypes[p->type];
 
-        glBindTexture(GL_TEXTURE_2D, pt->tex);  
-        glBegin(GL_QUADS);
+        glBindTexture(GL_TEXTURE_2D, pt->tex);
+	
+	gufGeometrySetColor(pt->r, pt->g, pt->b);
+        gufGeometryBegin(GL_TRIANGLE_STRIP);
         
-        glColor3d(pt->r, pt->g, pt->b);
         float sz = pt->sz*particlesize/100.0f; 
         // perf varray?
-        glTexCoord2f(0.0, 1.0); glVertex3d(p->o.x+(-right.x+up.x)*sz, p->o.z+(-right.y+up.y)*sz, p->o.y+(-right.z+up.z)*sz);
-        glTexCoord2f(1.0, 1.0); glVertex3d(p->o.x+( right.x+up.x)*sz, p->o.z+( right.y+up.y)*sz, p->o.y+( right.z+up.z)*sz);
-        glTexCoord2f(1.0, 0.0); glVertex3d(p->o.x+( right.x-up.x)*sz, p->o.z+( right.y-up.y)*sz, p->o.y+( right.z-up.z)*sz);
-        glTexCoord2f(0.0, 0.0); glVertex3d(p->o.x+(-right.x-up.x)*sz, p->o.z+(-right.y-up.y)*sz, p->o.y+(-right.z-up.z)*sz);
-        glEnd();
+        gufGeometryTexCoord2f(0.0, 1.0); gufGeometryVertex3f(p->o.x+(-right.x+up.x)*sz, p->o.z+(-right.y+up.y)*sz, p->o.y+(-right.z+up.z)*sz);
+        gufGeometryTexCoord2f(1.0, 1.0); gufGeometryVertex3f(p->o.x+( right.x+up.x)*sz, p->o.z+( right.y+up.y)*sz, p->o.y+( right.z+up.z)*sz);
+        gufGeometryTexCoord2f(0.0, 0.0); gufGeometryVertex3f(p->o.x+(-right.x-up.x)*sz, p->o.z+(-right.y-up.y)*sz, p->o.y+(-right.z-up.z)*sz);
+	gufGeometryTexCoord2f(1.0, 0.0); gufGeometryVertex3f(p->o.x+( right.x-up.x)*sz, p->o.z+( right.y-up.y)*sz, p->o.y+( right.z-up.z)*sz);
+        gufGeometryEnd();
+	
         xtraverts += 4;
 
         if(numrender++>maxparticles || (p->fade -= time)<0)

@@ -49,9 +49,9 @@ void gl_init(int w, int h)
     
     purgetextures();
 
-    glNewList(1, GL_COMPILE);
+    gufGeometryNewList(1);
     gufSphere(GUF_INSIDE,1, 12, 12);
-    glEndList();
+    gufGeometryEndList();
 };
 
 void cleangl()
@@ -341,7 +341,7 @@ void gl_drawframe(int w, int h, float curfps)
     gufRotatef(player1->pitch, -1.0f, 0.0f, 0.0f);
     gufRotatef(player1->yaw ,   0.0f, 1.0f, 0.0f);
     gufRotatef(90.0f, 1.0f, 0.0f, 0.0f);
-    glColor3f(1.0f, 1.0f, 1.0f);
+    gufGeometrySetColor(1.0f, 1.0f, 1.0f);
     gufSetEnabled(GUF_FOG,false);
     glDepthFunc(GL_GREATER);
     draw_envbox(14, fog*4/3);

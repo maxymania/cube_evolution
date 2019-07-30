@@ -31,9 +31,9 @@ struct vertex {
 	glm::vec3 normal;
 	glm::vec2 texcoord;
 	inline void point(){
-		glTexCoord2f(texcoord.x,texcoord.y);
-		glNormal3f(normal.x,normal.y,normal.z);
-		glVertex3f(pos.x,pos.y,pos.z);
+		gufGeometryTexCoord2f(texcoord.x,texcoord.y);
+		gufGeometryNormal3f(normal.x,normal.y,normal.z);
+		gufGeometryVertex3f(pos.x,pos.y,pos.z);
 	}
 };
 struct quadstrip {
@@ -107,7 +107,7 @@ void gufSphere(unsigned int flags,float radius,int slices,int stacks)
 		cosc2[i] = SDL_cosf(angle);
 	}
 	
-	glBegin(GL_TRIANGLES);
+	gufGeometryBegin(GL_TRIANGLES);
 	for(int j(1);j<stacks;++j){
 		q_strip.pos = 0;
 		for(int i(f_slices.low);f_slices.check(i); i+=f_slices.step) {
@@ -117,6 +117,6 @@ void gufSphere(unsigned int flags,float radius,int slices,int stacks)
 		VERTEX(f_slices.low,j); q_strip.push(cur_vert);
 		VERTEX(f_slices.low,j-1); q_strip.push(cur_vert);
 	}
-	glEnd();
+	gufGeometryEnd();
 }
 

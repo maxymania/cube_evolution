@@ -132,11 +132,11 @@ void md2::render(vec &light, int frame, int range, float x, float y, float z, fl
     gufRotatef(yaw+180, 0, -1, 0);
     gufRotatef(pitch, 0, 0, 1);
     
-    glColor3fv((float *)&light);
+    gufGeometrySetColor(light.x,light.y,light.z);
 
     if(displaylist && frame==0 && range==1)
     {
-		glCallList(displaylist);
+		gufGeometryCallList(displaylist);
 		xtraverts += displaylistverts;
     }
     else
@@ -144,7 +144,7 @@ void md2::render(vec &light, int frame, int range, float x, float y, float z, fl
 		if(frame==0 && range==1)
 		{
 			static int displaylistn = 10;
-			glNewList(displaylist = displaylistn++, GL_COMPILE);
+			gufGeometryNewList(displaylist = displaylistn++);
 			displaylistverts = xtraverts;
 		};
 		
@@ -161,29 +161,29 @@ void md2::render(vec &light, int frame, int range, float x, float y, float z, fl
 		for(int *command = glCommands; (*command)!=0;)
 		{
 			int numVertex = *command++;
-			if(numVertex>0) { glBegin(GL_TRIANGLE_STRIP); }
-			else            { glBegin(GL_TRIANGLE_FAN); numVertex = -numVertex; };
+			if(numVertex>0) { gufGeometryBegin(GL_TRIANGLE_STRIP); }
+			else            { gufGeometryBegin(GL_TRIANGLE_FAN); numVertex = -numVertex; };
 
 			loopi(numVertex)
 			{
 				float tu = *((float*)command++);
 				float tv = *((float*)command++);
-				glTexCoord2f(tu, tv);
+				gufGeometryTexCoord2f(tu, tv);
 				int vn = *command++;
 				vec &v1 = verts1[vn];
 				vec &v2 = verts2[vn];
 				#define ip(c) v1.c*frac2+v2.c*frac1
-				glVertex3f(ip(x), ip(z), ip(y));
+				gufGeometryVertex3f(ip(x), ip(z), ip(y));
 			};
 
 			xtraverts += numVertex;
 
-			glEnd();
+			gufGeometryEnd();
 		};
 		
 		if(displaylist)
 		{
-			glEndList();
+			gufGeometryEndList();
 			displaylistverts = xtraverts-displaylistverts;
 		};
 	};
