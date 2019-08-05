@@ -7,6 +7,7 @@ namespace gufgles2 {
 	
 	struct Program {
 		GLuint program;
+		/* Per-Object Uniform-Colors can be supplied as Generic Per-Vertex Attrib as well. */
 		struct {
 			GLint mvp; /* Model-View-Projection */
 			GLint tex; /* Texture */
@@ -20,5 +21,5 @@ namespace gufgles2 {
 	};
 }
 
-#define DEF_PROGRAMS gufgles2::Program gufgles2_programs[4];
+#define DEF_PROGRAMS gufgles2::Program gufgles2_programs[5];
 extern DEF_PROGRAMS;

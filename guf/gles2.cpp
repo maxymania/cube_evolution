@@ -17,6 +17,18 @@
 #define DEBUG_ENTER
 
 namespace {
+	void print_error(const char* what) {
+		unsigned err = glGetError();
+		switch(err){
+		case GL_NO_ERROR: break;
+		case GL_INVALID_ENUM: printf("%s = GL_INVALID_ENUM\n",what); break;
+		case GL_INVALID_VALUE: printf("%s = GL_INVALID_VALUE\n",what); break;
+		case GL_INVALID_OPERATION: printf("%s = GL_INVALID_OPERATION\n",what); break;
+		case GL_INVALID_FRAMEBUFFER_OPERATION: printf("%s = GL_INVALID_FRAMEBUFFER_OPERATION\n",what); break;
+		case GL_OUT_OF_MEMORY: printf("%s = GL_OUT_OF_MEMORY\n",what); break;
+		default: printf("%s = %d\n",what,(int)err);
+		}
+	}
 	struct MatrixStack {
 		std::vector<glm::mat4> stack;
 		glm::mat4 top;
@@ -113,13 +125,52 @@ namespace {
 	ObjectDrawCall * drawcall;
 	ObjectDrawCall * drawinst;
 	
+	const gufgles2::Program *last_programm;
+	
+	inline void disableVertAttrib(GLint i) {
+		if(locValid(i)) glDisableVertexAttribArray(i);
+	}
 	void bindUniforms(const gufgles2::Program &program) {
+		if(last_programm && (last_programm!=&program)) {
+			disableVertAttrib(last_programm->a.position);
+			disableVertAttrib(last_programm->a.texCoord);
+			disableVertAttrib(last_programm->a.color);
+		}
+		
 		mat_mvp_calc();
 		
 		glUseProgram(program.program);
+		print_error("glUseProgram(program.program)");
 		if(locValid(program.u.mvp))   glUniformMatrix4fv(program.u.mvp,1,GL_FALSE,glm::value_ptr(mat_mvp));
+		print_error("glUniformMatrix4fv(program.u.mvp,1,GL_FALSE,glm::value_ptr(mat_mvp))");
 		if(locValid(program.u.tex))   glUniform1i       (program.u.tex,0);
+		print_error("glUniform1i       (program.u.tex,0);");
 		if(locValid(program.u.color)) glUniform4f       (program.u.color,uColor.x,uColor.y,uColor.z,uColor.w);
+		print_error("glUniform4f       (program.u.color,uColor.x,uColor.y,uColor.z,uColor.w);");
+		last_programm = &program;
+	}
+	
+	void bindUniforms_old(int i) {
+		const gufgles2::Program &program = gufgles2_programs[i];
+		if(last_programm && (last_programm!=&program)) {
+			disableVertAttrib(last_programm->a.position);
+			disableVertAttrib(last_programm->a.texCoord);
+			disableVertAttrib(last_programm->a.color);
+		}
+		
+		mat_mvp_calc();
+		
+		printf("gufgles2_programs[%d].program = %d\n",i,program.program);
+		printf("gufgles2_programs[0..4] = %d %d %d %d\n",gufgles2_programs[0].program,gufgles2_programs[1].program,gufgles2_programs[2].program,gufgles2_programs[3].program);
+		glUseProgram(program.program);
+		print_error("glUseProgram(program.program)");
+		if(locValid(program.u.mvp))   glUniformMatrix4fv(program.u.mvp,1,GL_FALSE,glm::value_ptr(mat_mvp));
+		print_error("glUniformMatrix4fv(program.u.mvp,1,GL_FALSE,glm::value_ptr(mat_mvp))");
+		if(locValid(program.u.tex))   glUniform1i       (program.u.tex,0);
+		print_error("glUniform1i       (program.u.tex,0);");
+		if(locValid(program.u.color)) glUniform4f       (program.u.color,uColor.x,uColor.y,uColor.z,uColor.w);
+		print_error("glUniform4f       (program.u.color,uColor.x,uColor.y,uColor.z,uColor.w);");
+		last_programm = &program;
 		
 	}
 	void perform(ObjectDrawCall * call) {
@@ -155,6 +206,7 @@ namespace {
 		state.polygon_offset_line = false;
 		state.wireframe = false;
 	}
+	
 }
 
 void gufgles2::init2(void)
@@ -169,6 +221,7 @@ void gufgles2::init2(void)
 	drawlist = 0;
 	drawcall = 0;
 	drawinst = new ObjectDrawCall;
+	last_programm = 0;
 	init_u();
 	init_state();
 }
@@ -361,8 +414,70 @@ void gufLevelTexCoordPtr2f(int_u stride,const void* ptr) {
 }
 void gufLevelDrawArrays(int_u mode, int first, int_u count){
 	DEBUG_ENTER;
+	
+	const gufgles2::Program &program = gufgles2_programs[4]; // levelGeom
+	
+	bindUniforms(program);
+	print_error("bindUniforms(program);");
+	
+	//printf("position: %d, texCoord: %d, color: %d\n",program.a.position,program.a.texCoord,program.a.color);
+	//printf("pointers[0].stride = %d, pointers[0].pointer = %p\n",pointers[0].stride,pointers[0].pointer);
+	if(locValid(program.a.position)) {
+		glVertexAttribPointer(
+			program.a.position, // index
+			3, // size
+			GL_FLOAT, // type
+			GL_FALSE, // normalized
+			pointers[0].stride,// stride
+			pointers[0].pointer); // pointer
+		//print_error("glVertexAttribPointer(program.a.position);");
+		glEnableVertexAttribArray(program.a.position);
+		//print_error("glEnableVertexAttribArray(program.a.position);");
+	}
+	
+	if(locValid(program.a.color)) {
+		glVertexAttribPointer(
+			program.a.position, // index
+			4, // size
+			GL_UNSIGNED_BYTE, // type
+			GL_FALSE, // normalized
+			pointers[1].stride,// stride
+			pointers[1].pointer); // pointer
+		glEnableVertexAttribArray(program.a.color);
+		print_error("glEnableVertexAttribArray(program.a.color);");
+	}
+	
+	if(locValid(program.a.texCoord)) {
+		glVertexAttribPointer(
+			program.a.texCoord, // index
+			2, // size
+			GL_FLOAT, // type
+			GL_FALSE, // normalized
+			pointers[2].stride,// stride
+			pointers[2].pointer); // pointer
+		glEnableVertexAttribArray(program.a.texCoord);
+		print_error("glEnableVertexAttribArray(program.a.texCoord);");
+	}
+	
+	
+	//glDrawArrays(mode,0,4);
+	
 	// TODO: Do some more work!
-	//glDrawArrays(mode,first,count);
+	glDrawArrays(mode,first,count);
+	//printf("mode = %d {%d:GL_TRIANGLES,%d:GL_TRIANGLE_STRIP,%d:GL_TRIANGLE_FAN}\n",(int)mode,(int)GL_TRIANGLES,(int)GL_TRIANGLE_STRIP,(int)GL_TRIANGLE_FAN);
+	
+	#if 0
+	unsigned err = glGetError();
+	switch(err){
+	case GL_NO_ERROR: break;
+	case GL_INVALID_ENUM: printf("glDrawArrays(mode,first,count) = GL_INVALID_ENUM\n"); break;
+	case GL_INVALID_VALUE: printf("glDrawArrays(mode,first,count) = GL_INVALID_VALUE {first,count}={%d,%d}\n",first,count); break;
+	case GL_INVALID_OPERATION: printf("glDrawArrays(mode,first,count) = GL_INVALID_OPERATION\n"); break;
+	case GL_INVALID_FRAMEBUFFER_OPERATION: printf("glDrawArrays(mode,first,count) = GL_INVALID_FRAMEBUFFER_OPERATION\n"); break;
+	case GL_OUT_OF_MEMORY: printf("glDrawArrays(mode,first,count) = GL_OUT_OF_MEMORY\n"); break;
+	default: printf("glDrawArrays(mode,first,count) = %d\n",(int)err);
+	}
+	#endif
 }
 
 
@@ -415,7 +530,7 @@ static void extraQuadDraw(int_u mode) {
 	
 	bindUniforms(program);
 	
-	if(locValid(program.a.position))
+	if(locValid(program.a.position)) {
 		glVertexAttribPointer(
 			program.a.position, // index
 			3, // size
@@ -423,6 +538,8 @@ static void extraQuadDraw(int_u mode) {
 			GL_FALSE, // normalized
 			sizeof(glm::vec3), // stride
 			extraQuad); // pointer
+		glEnableVertexAttribArray(program.a.position);
+	}
 	
 	glDrawArrays(mode,0,4);
 }
@@ -431,7 +548,7 @@ static void extraQuadDrawTx(int_u mode) {
 	
 	bindUniforms(program);
 	
-	if(locValid(program.a.position))
+	if(locValid(program.a.position)) {
 		glVertexAttribPointer(
 			program.a.position, // index
 			3, // size
@@ -439,8 +556,10 @@ static void extraQuadDrawTx(int_u mode) {
 			GL_FALSE, // normalized
 			sizeof(glm::vec3), // stride
 			extraQuad); // pointer
+		glEnableVertexAttribArray(program.a.position);
+	}
 	
-	if(locValid(program.a.texCoord))
+	if(locValid(program.a.texCoord)) {
 		glVertexAttribPointer(
 			program.a.texCoord, // index
 			2, // size
@@ -448,6 +567,8 @@ static void extraQuadDrawTx(int_u mode) {
 			GL_FALSE, // normalized
 			sizeof(glm::vec2), // stride
 			extraQuadTx); // pointer
+		glEnableVertexAttribArray(program.a.texCoord);
+	}
 	
 	glDrawArrays(mode,0,4);
 }

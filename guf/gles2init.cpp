@@ -8,16 +8,18 @@ DEF_PROGRAMS;
 // see also https://stackoverflow.com/questions/42231698/how-to-convert-glsl-version-330-core-to-glsl-es-version-100
 
 /*
-[0] -> level geometry.
+
 [1] -> objects.
 [2] -> simpleTex
 [3] -> noTex
+[4] -> level geometry.
 */
 
 using namespace gufgles2;
 
 namespace {
 	const char vsLevel[] =
+	"#version 100\n"
 	"attribute vec3 aPosition;\n"
 	"attribute vec4 aColor;\n"
 	"attribute vec2 aTexCoord;\n"
@@ -32,6 +34,7 @@ namespace {
 	"}\n";
 	
 	const char vsObject[] =
+	"#version 100\n"
 	"attribute vec3 aPosition;\n"
 	"attribute vec2 aTexCoord;\n"
 	"uniform mat4 uMvp;\n"
@@ -121,18 +124,20 @@ namespace {
 		glGetProgramiv(object, GL_LINK_STATUS, &linked);
 		if(!linked) {
 			printf("Shader program not linked!\nAnnotation: %s\n",why);
+			_Exit(1);
 			return;
 		}
 		
+		//printf("program = %d\n",object);
 		program.program = object;
 		
 		program.u.mvp = glGetUniformLocation(object,"uMvp");
 		program.u.tex = glGetUniformLocation(object,"uTex");
 		program.u.color = glGetUniformLocation(object,"uColor");
 		
-		program.a.position = glGetUniformLocation(object,"aPosition");
-		program.a.texCoord = glGetUniformLocation(object,"aTexCoord");
-		program.a.color = glGetUniformLocation(object,"aColor");
+		program.a.position = glGetAttribLocation(object,"aPosition");
+		program.a.texCoord = glGetAttribLocation(object,"aTexCoord");
+		program.a.color = glGetAttribLocation(object,"aColor");
 	}
 }
 
@@ -145,10 +150,16 @@ void gufgles2::init(void)
 	shaders[3] = makeShader(GL_FRAGMENT_SHADER,fsSimpleTex);
 	shaders[4] = makeShader(GL_FRAGMENT_SHADER,fsNoTex);
 	shaders[5] = makeShader(GL_VERTEX_SHADER  ,vsNoTex);
-	makeProgram(gufgles2_programs[0],shaders[0],shaders[2],"vsLevel + fsGeom");
+	
+	// Position 0 gets corrputed somehow!!
+	gufgles2_programs[0].program = 0;
+	
 	makeProgram(gufgles2_programs[1],shaders[1],shaders[2],"vsObject + fsGeom");
 	makeProgram(gufgles2_programs[2],shaders[1],shaders[3],"vsObject + fsSimpleTex");
 	makeProgram(gufgles2_programs[3],shaders[5],shaders[4],"vsNoTex + fsNoTex");
+	makeProgram(gufgles2_programs[4],shaders[0],shaders[2],"vsLevel + fsGeom");
+	//for(int i=0;i<4;++i) printf("gufgles2_programs[%d].program = %d\n",i,gufgles2_programs[i].program);
+	//_Exit(1);
 }
 
 #endif
